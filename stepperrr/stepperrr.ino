@@ -1,126 +1,131 @@
-#define EN        8  
-
-//Direction pin
+// Direction pin 
 #define X_DIR     52 
 #define Y_DIR     50
 #define Z_DIR     48
 #define A_DIR     46
 
-//Step pin
+// Step pin
 #define X_STP     53
 #define Y_STP     51 
 #define Z_STP     49 
 #define A_STP     47
 
 
-//DRV8825
-int delayTime=100; //Delay between each pause (uS)
+// DRV8825
+int delayTime=120; //Delay between each pause (uS)
 int stps=6400;// Steps to move
+class __Move__ {
+    private:
+        uint8_t step_pin_x_;
+        uint8_t step_pin_y_;
+        uint8_t step_pin_z_;
+        uint8_t step_pin_a_;
+        uint8_t dir_pin_x_;
+        uint8_t dir_pin_y_;
+        uint8_t dir_pin_z_;
+        uint8_t dir_pin_a_;
+        int motorDelayTime_;
+    public:
+        __Move__(int step_pin_x_, 
+                    int step_pin_y_, 
+                    int step_pin_z_, 
+                    int step_pin_a_,
+                    int dir_pin_x_,
+                    int dir_pin_y_,
+                    int dir_pin_z_,
+                    int dir_pin_a_,
+                    int motorDelayTime_) {
+            this->step_pin_x_ = step_pin_x_;
+            this->step_pin_y_ = step_pin_y_;
+            this->step_pin_z_ = step_pin_z_;
+            this->step_pin_a_ = step_pin_a_;
+            this->dir_pin_x_ = dir_pin_x_;
+            this->dir_pin_y_ = dir_pin_y_;
+            this->dir_pin_z_ = dir_pin_z_;
+            this->dir_pin_a_ = dir_pin_a_;
+            this->motorDelayTime_ = motorDelayTime_;
 
-void changeDirForward() {
-  digitalWrite(X_DIR, 1);
-  digitalWrite(Y_DIR, 1);
-  digitalWrite(Z_DIR, 1);
-  digitalWrite(A_DIR, 1);
-}
+            pinMode(this->dir_pin_x_, OUTPUT);
+            pinMode(this->dir_pin_y_, OUTPUT);
+            pinMode(this->dir_pin_z_, OUTPUT);
+            pinMode(this->dir_pin_a_, OUTPUT);
+            pinMode(this->step_pin_x_, OUTPUT);
+            pinMode(this->step_pin_y_, OUTPUT);
+            pinMode(this->step_pin_z_, OUTPUT);
+            pinMode(this->step_pin_a_, OUTPUT);
 
-void changeDirBackward() {
-  digitalWrite(X_DIR, 0);
-  digitalWrite(Y_DIR, 0);
-  digitalWrite(Z_DIR, 0);
-  digitalWrite(A_DIR, 0);
-}
+        }
+        void changeDirForward() {
+          digitalWrite(this->dir_pin_x_, 1);
+          digitalWrite(this->dir_pin_y_, 1);
+          digitalWrite(this->dir_pin_z_, 1);
+          digitalWrite(this->dir_pin_a_, 1);
+        }
 
-void changeDirRight() {
-  digitalWrite(X_DIR, 0);
-  digitalWrite(Y_DIR, 0);
-  digitalWrite(Z_DIR, 1);
-  digitalWrite(A_DIR, 1);
-}
+        void changeDirBackward() {
+          digitalWrite(this->dir_pin_x_, 0);
+          digitalWrite(this->dir_pin_y_, 0);
+          digitalWrite(this->dir_pin_z_, 0);
+          digitalWrite(this->dir_pin_a_, 0);
+        }
 
-void changeDirLeft() {
-  digitalWrite(X_DIR, 1);
-  digitalWrite(Y_DIR, 1);
-  digitalWrite(Z_DIR, 0);
-  digitalWrite(A_DIR, 0);
-}
+        void changeDirRight() {
+          digitalWrite(this->dir_pin_x_, 0);
+          digitalWrite(this->dir_pin_y_, 0);
+          digitalWrite(this->dir_pin_z_, 1);
+          digitalWrite(this->dir_pin_a_, 1);
+        }
 
-void goLeft() {
-  digitalWrite(X_DIR, 0);
-  digitalWrite(Y_DIR, 1);
-  digitalWrite(Z_DIR, 1);
-  digitalWrite(A_DIR, 0);
-}
-void one_step(boolean dir, byte stpprX, byte stpprY, byte stpprZ, byte stpprA)
-{
-    digitalWrite(stpprX, HIGH);
-    digitalWrite(stpprY, HIGH);
-    digitalWrite(stpprA, HIGH);
-    digitalWrite(stpprZ, HIGH);
-    delayMicroseconds(delayTime); 
-    digitalWrite(stpprX, LOW);
-    digitalWrite(stpprY, LOW);
-    digitalWrite(stpprA, LOW);
-    digitalWrite(stpprZ, LOW);
-    delayMicroseconds(delayTime); 
-}
+        void changeDirLeft() {
+          digitalWrite(this->dir_pin_x_, 1);
+          digitalWrite(this->dir_pin_y_, 1);
+          digitalWrite(this->dir_pin_z_, 0);
+          digitalWrite(this->dir_pin_a_, 0);
+        }
 
-void step(boolean dir, byte dirPin, byte stepperPin, int steps)
-{
-  digitalWrite(dirPin, dir);
-  delay(100);
-  for (int i = 0; i < steps; i++) {
-    digitalWrite(stepperPin, HIGH);
-    delayMicroseconds(delayTime); 
-    digitalWrite(stepperPin, LOW);
-    delayMicroseconds(delayTime); 
+        void goLeft() {
+          digitalWrite(this->dir_pin_x_, 0);
+          digitalWrite(this->dir_pin_y_, 1);
+          digitalWrite(this->dir_pin_z_, 1);
+          digitalWrite(this->dir_pin_a_, 0);
+        }
+        void one_step() {
+            digitalWrite(this->step_pin_x_, HIGH);
+            digitalWrite(this->step_pin_y_, HIGH);
+            digitalWrite(this->step_pin_z_, HIGH);
+            digitalWrite(this->step_pin_a_, HIGH);
+            delayMicroseconds(this->motorDelayTime_); 
+            digitalWrite(this->step_pin_x_, LOW);
+            digitalWrite(this->step_pin_y_, LOW);
+            digitalWrite(this->step_pin_z_, LOW);
+            digitalWrite(this->step_pin_a_, LOW);
+            delayMicroseconds(this->motorDelayTime_); 
+        }
+        
+        void n_step(int steps) {
+           for (int step = 0; step <= steps; ++step) {
+             one_step();
+           }
+        }
+};
 
-  }
-
-}
+__Move__ *motor;
 
 void setup(){
-
-  pinMode(X_DIR, OUTPUT); pinMode(X_STP, OUTPUT);
-  pinMode(Y_DIR, OUTPUT); pinMode(Y_STP, OUTPUT);
-  pinMode(Z_DIR, OUTPUT); pinMode(Z_STP, OUTPUT);
-  pinMode(A_DIR, OUTPUT); pinMode(A_STP, OUTPUT);
-  pinMode(EN, OUTPUT);
-  digitalWrite(EN, LOW);
-
+    motor = new __Move__(X_STP,
+                        Y_STP,
+                        Z_STP,
+                        Z_STP,
+                        X_DIR,
+                        Y_DIR, 
+                        Z_DIR,
+                        A_DIR,
+                        120);
 }
 
 void loop(){
-   changeDirForward();
-   for (int step = 0; step <= 3000; ++step) {
-     one_step(0, X_STP, Y_STP, Z_STP, A_STP);
-   }
-  // changeDirBackward();
-  // for (int step = 0; step <= 5000; ++step) {
-  //   one_step(0, X_STP, Y_STP, Z_STP, A_STP);
-  // }
-   changeDirRight();
-   for (int step = 0; step <= 5500; ++step) {
-     one_step(0, X_STP, Y_STP, Z_STP, A_STP);
-   }
-  // changeDirLeft();
-  // for (int step = 0; step <= 5000; ++step) {
-  //   one_step(0, X_STP, Y_STP, Z_STP, A_STP);
-  // }
-//  goLeft();
-//  for (int step = 0; step <= 5000; ++step) {
-//    one_step(0, X_STP, Y_STP, Z_STP, A_STP);
-//  }
-
-  //step(false, X_DIR, X_STP, stps); //X, Clockwise
-  //step(false, Y_DIR, Y_STP, stps); //Y, Clockwise
-  //step(false, Z_DIR, Z_STP, stps); //Z, Clockwise
-  //step(false, A_DIR, A_STP, stps); //Z, Clockwise
-  //delay(500);
-  //step(true, X_DIR, X_STP, stps); //X, Counterclockwise
-  //step(true, Y_DIR, Y_STP, stps); //Y, Counterclockwise
-  //step(true, Z_DIR, Z_STP, stps); //X, Counterclockwise
-  //step(true, A_DIR, A_STP, stps); //X, Counterclockwise
-  //delay(500);
-
+    motor->changeDirForward();
+    motor->n_step(6000);
+    motor->changeDirBackward();
+    motor->n_step(6000);
 }
