@@ -107,6 +107,20 @@ class __Move__ {
              one_step();
            }
         }
+        void n_step_smooth(int steps) {
+           for (int step = 0; step <= steps; ++step) {
+             if (step < 3000) {
+                this->motorDelayTime_ += int(step*0.00007);
+                 one_step();
+             } else {
+                this->motorDelayTime_ -= int(step*0.00007);
+                 one_step();
+             }
+           }
+        }
+        void changeMotorDelay(int del) {
+            this->motorDelayTime_ = del;
+        }
 };
 
 __Move__ *motor;
@@ -115,17 +129,17 @@ void setup(){
     motor = new __Move__(X_STP,
                         Y_STP,
                         Z_STP,
-                        Z_STP,
+                        A_STP,
                         X_DIR,
                         Y_DIR, 
                         Z_DIR,
                         A_DIR,
-                        120);
+                        100);
 }
 
 void loop(){
     motor->changeDirForward();
-    motor->n_step(6000);
-    motor->changeDirBackward();
-    motor->n_step(6000);
+    motor->n_step_smooth(6000);
+    motor->changeDirRight();
+    motor->n_step_smooth(6000);
 }
