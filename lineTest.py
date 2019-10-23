@@ -15,10 +15,17 @@ video_capture.set(4, 120)
 while(True):
     # Capture the frames
     ret, frame = video_capture.read()
+    (h, w) = frame.shape[:2] 
+    center = (w / 2, h / 2)
+    scale = 1.
+    
+    M = cv2.getRotationMatrix2D(center, 180, scale)
+    frame = cv2.warpAffine(frame, M, (w, h))
+
     # Crop the image
-    crop_img = frame[60:120, 0:160]
+    # crop_img = frame[60:120, 0:160]
     # Convert to grayscale
-    gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Gaussian blur
     blur = cv2.GaussianBlur(gray,(5,5),0)
     # Color thresholding
@@ -27,16 +34,16 @@ while(True):
     mask = cv2.erode(thresh1, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
     # Find the contours of the frame
-    contours,hierarchy = cv2.findContours(mask.copy(), 1, cv2.CHAIN_APPROX_NONE)
+    _, contours,hierarchy = cv2.findContours(mask.copy(), 1, cv2.CHAIN_APPROX_NONE)
     # Find the biggest contour (if detected)
     if len(contours) > 0:
         c = max(contours, key=cv2.contourArea)
         M = cv2.moments(c)
         cx = int(M['m10']/M['m00'])
         cy = int(M['m01']/M['m00'])
-        cv2.line(crop_img,(cx,0),(cx,720),(255,0,0),1)
-        cv2.line(crop_img,(0,cy),(1280,cy),(255,0,0),1)
-        cv2.drawContours(crop_img, contours, -1, (0,255,0), 1)
+        cv2.line(frame,(cx,0),(cx,720),(255,0,0),1)
+        cv2.line(frame,(0,cy),(1280,cy),(255,0,0),1)
+        cv2.drawContours(frame, contours, -1, (0,255,0), 1)
         print(cx)
         print(cy)
         # if cx >= 120:
@@ -52,6 +59,6 @@ while(True):
     #     GPIO.output("P8_10", GPIO.HIGH)
     #     GPIO.output("P9_11", GPIO.HIGH)
     #Display the resulting frame
-    cv2.imshow('frame',crop_img)
+    cv2.imshow('frame',frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
