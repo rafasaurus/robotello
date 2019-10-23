@@ -1,19 +1,18 @@
-// Direction pin 
+#ifndef __move__
+#define __move__
+
+// direction pins
 #define X_DIR     52 
 #define Y_DIR     50
 #define Z_DIR     48
 #define A_DIR     46
 
-// Step pin
+// step pins
 #define X_STP     53
 #define Y_STP     51 
 #define Z_STP     49 
 #define A_STP     47
 
-
-// DRV8825
-int delayTime=120; //Delay between each pause (uS)
-int stps=6400;// Steps to move
 class __Move__ {
     private:
         uint8_t step_pin_x_;
@@ -108,13 +107,14 @@ class __Move__ {
            }
         }
         void n_step_smooth(int steps) {
+           // TODO map(steps)
            for (int step = 0; step <= steps; ++step) {
              if (step < 3000) {
                 this->motorDelayTime_ += int(step*0.00007);
-                 one_step();
+                one_step();
              } else {
                 this->motorDelayTime_ -= int(step*0.00007);
-                 one_step();
+                one_step();
              }
            }
         }
@@ -123,23 +123,4 @@ class __Move__ {
         }
 };
 
-__Move__ *motor;
-
-void setup(){
-    motor = new __Move__(X_STP,
-                        Y_STP,
-                        Z_STP,
-                        A_STP,
-                        X_DIR,
-                        Y_DIR, 
-                        Z_DIR,
-                        A_DIR,
-                        100);
-}
-
-void loop(){
-    motor->changeDirForward();
-    motor->n_step_smooth(6000);
-    motor->changeDirRight();
-    motor->n_step_smooth(6000);
-}
+#endif
