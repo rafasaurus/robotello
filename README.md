@@ -1,5 +1,6 @@
 TODO:
--    make the street model
--    line tracking opencv example    
--    serial class
 -    stepper smooth motor control
+-    line tracking library
+-    integrate ultrasonic with motor movement
+-    serial class
+-    full communication, with raspberry pi
