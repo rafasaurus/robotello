@@ -10,13 +10,13 @@
 #include <event_groups.h>
 #include <queue.h>
 #endif
+#define LED_BUILTIN 13
 
 #define rightSensorPin A0 // RightSesnor
 #define leftSensorPin A1 // LeftSesnor
 #define INCLUDE_vTaskDelay 1
-TaskHandle_t motor_task_handler;
-void MyTask1( void *pvParameters );
-
+/* TaskHandle_t motor_task_handler; */
+void TaskBlink(void *pvParameters);
 
 __ColorSense__ colorSense;
 /* __Servo__ arm(0, 60, 15, 5); */
@@ -34,6 +34,7 @@ __Move__ motor(X_STP,
         100);
 __Ultrasonic__ ultrasonic;
 void setup() {
+    pinMode(LED_BUILTIN, OUTPUT);
     Serial.begin(115200);
     Serial.print("setup complete");
     Serial.print("setup complete");
@@ -44,19 +45,32 @@ void setup() {
     /* motor.changeDirForward(); */
     /* arm.open(); */
     pinMode(13, OUTPUT);
-    /* xTaskCreate(MyTask1, "MyTask1", 10000, NULL, 1, NULL); */
+    xTaskCreate(
+            TaskBlink
+            ,  (const portCHAR *)"Blink"   // A name just for humans
+            ,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
+            ,  NULL
+            ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+            ,  NULL );
     /* vTaskStartScheduler(); */
     motor.changeState(ONE_STEP);
     motor.startTask();
 }
 
 /* Task1 with priority 1 */
-static void MyTask1(void* pvParameters)
-{   
+void TaskBlink(void *pvParameters)  // This is a task.
+{
     (void) pvParameters;
-    while(1) {
-        Serial.println(F("\nTask1\n"));
-        vTaskDelay(1000000);
+    pinMode(LED_BUILTIN, OUTPUT);
+
+    for (;;) // A Task shall never return or exit.
+    {
+        Serial.print("\nALAZAN");
+        digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+        vTaskDelay( 1000 / portTICK_PERIOD_MS ); // wait for one second
+        Serial.print("alazan");
+        digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+        vTaskDelay( 1000 / portTICK_PERIOD_MS ); // wait for one second
     }
 }
 
