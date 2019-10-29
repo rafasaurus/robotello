@@ -13,7 +13,6 @@ class __Servo__ {
     public:
         __Servo__(int min_, int max_, int delay_, int pin_);
         __Servo__(int pin_);
-        ~__Servo__();
         void open();
         void close();
         void setAngle(int angle);

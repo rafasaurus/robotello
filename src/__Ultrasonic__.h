@@ -7,7 +7,6 @@
 class __Ultrasonic__ {
     public:
         __Ultrasonic__();
-        ~__Ultrasonic__();
         int getDistance();
 };
 __Ultrasonic__::__Ultrasonic__() {
