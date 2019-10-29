@@ -105,12 +105,12 @@ class __Move__ {
             digitalWrite(this->step_pin_y_, HIGH);
             digitalWrite(this->step_pin_z_, HIGH);
             digitalWrite(this->step_pin_a_, HIGH);
-            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
+            delayMicroseconds(this->motorDelayTime_);
             digitalWrite(this->step_pin_x_, LOW);
             digitalWrite(this->step_pin_y_, LOW);
             digitalWrite(this->step_pin_z_, LOW);
             digitalWrite(this->step_pin_a_, LOW);
-            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
+            delayMicroseconds(this->motorDelayTime_);
         }
         // TODO 
         // with parameter delayDifference 
@@ -118,18 +118,18 @@ class __Move__ {
         void one_step_clockwise() {
             digitalWrite(this->step_pin_x_, HIGH);
             digitalWrite(this->step_pin_y_, HIGH);
-            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
+            delayMicroseconds(this->motorDelayTime_); 
             digitalWrite(this->step_pin_x_, LOW);
             digitalWrite(this->step_pin_y_, LOW);
-            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
+            delayMicroseconds(this->motorDelayTime_); 
         }
         void one_step_anticlockwise() {
             digitalWrite(this->step_pin_z_, HIGH);
             digitalWrite(this->step_pin_a_, HIGH);
-            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
+            delayMicroseconds(this->motorDelayTime_); 
             digitalWrite(this->step_pin_z_, LOW);
             digitalWrite(this->step_pin_a_, LOW);
-            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
+            delayMicroseconds(this->motorDelayTime_); 
         }
         void n_step(int steps) {
             for (int step = 0; step <= steps; ++step) {
@@ -159,7 +159,7 @@ class __Move__ {
             }
         }
         void startTask(){
-            xTaskCreate(this->startTaskImpl, "Task", 2048, this, 2, NULL);
+            xTaskCreate(this->startTaskImpl, "Task", 2048, this, 3, NULL);
         }
     private:
         void task(){
