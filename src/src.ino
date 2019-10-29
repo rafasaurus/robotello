@@ -16,7 +16,7 @@
 #define leftSensorPin A1 // LeftSesnor
 #define INCLUDE_vTaskDelay 1
 /* TaskHandle_t motor_task_handler; */
-void TaskBlink(void *pvParameters);
+void Loop(void *pvParameters);
 
 __ColorSense__ colorSense;
 /* __Servo__ arm(0, 60, 15, 5); */
@@ -46,7 +46,7 @@ void setup() {
     /* arm.open(); */
     pinMode(13, OUTPUT);
     xTaskCreate(
-            TaskBlink
+            Loop
             ,  (const portCHAR *)"Blink"   // A name just for humans
             ,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
             ,  NULL
@@ -58,19 +58,19 @@ void setup() {
 }
 
 /* Task1 with priority 1 */
-void TaskBlink(void *pvParameters)  // This is a task.
+void Loop(void *pvParameters)  // This is a task.
 {
     (void) pvParameters;
-    pinMode(LED_BUILTIN, OUTPUT);
-
-    for (;;) // A Task shall never return or exit.
+    while(1) // A Task shall never return or exit.
     {
         Serial.print("\nALAZAN");
         digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
         vTaskDelay( 1000 / portTICK_PERIOD_MS ); // wait for one second
+        motor.changeState(ONE_STEP);
         Serial.print("alazan");
         digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
         vTaskDelay( 1000 / portTICK_PERIOD_MS ); // wait for one second
+        motor.changeState(NOTHING);
     }
 }
 
