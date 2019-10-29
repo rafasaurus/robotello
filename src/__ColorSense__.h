@@ -19,7 +19,7 @@ class __ColorSense__ {
             digitalWrite(S0,HIGH);
             digitalWrite(S1,LOW);
         }
-        void getColor() {
+        int getRedColor() {
             // Setting red filtered photodiodes to be read
             digitalWrite(S2,LOW);
             digitalWrite(S3,LOW);
@@ -29,7 +29,9 @@ class __ColorSense__ {
             // Serial.print("R= ");//printing name
             // Serial.print(this->frequency);//printing RED color frequency
             // Serial.print("  ");
-            delay(10);
+            return this->frequency;
+        }
+        int getGreenColor() {
 
             // Setting Green filtered photodiodes to be read
             digitalWrite(S2,HIGH);
@@ -40,8 +42,9 @@ class __ColorSense__ {
             // Serial.print("G= ");//printing name
             // Serial.print(this->frequency);//printing RED color this->frequency
             // Serial.print("  ");
-            delay(10);
-
+            return this->frequency;
+        }
+        int getBlueColor() {
             // Setting Blue filtered photodiodes to be read
             digitalWrite(S2,LOW);
             digitalWrite(S3,HIGH);
@@ -51,6 +54,6 @@ class __ColorSense__ {
             // Serial.print("B= ");//printing name
             // Serial.print(this->frequency);//printing RED color frequency
             // Serial.println("  ");
-            delay(10);
+            return this->frequency;
         }
 };
