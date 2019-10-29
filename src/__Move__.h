@@ -19,7 +19,6 @@
 #define Y_STP     51 
 #define Z_STP     49 
 #define A_STP     47
-
 #define ONE_STEP 0
 #define ONE_STEP_CLK_WISE 1
 #define ONE_STEP_ANTI_CLK_WISE 2
@@ -106,12 +105,12 @@ class __Move__ {
             digitalWrite(this->step_pin_y_, HIGH);
             digitalWrite(this->step_pin_z_, HIGH);
             digitalWrite(this->step_pin_a_, HIGH);
-            vTaskDelay(0.005 * this->motorDelayTime_); 
+            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
             digitalWrite(this->step_pin_x_, LOW);
             digitalWrite(this->step_pin_y_, LOW);
             digitalWrite(this->step_pin_z_, LOW);
             digitalWrite(this->step_pin_a_, LOW);
-            vTaskDelay(0.005 * this->motorDelayTime_); 
+            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
         }
         // TODO 
         // with parameter delayDifference 
@@ -127,10 +126,10 @@ class __Move__ {
         void one_step_anticlockwise() {
             digitalWrite(this->step_pin_z_, HIGH);
             digitalWrite(this->step_pin_a_, HIGH);
-            vTaskDelay(0.001 * this->motorDelayTime_); 
+            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
             digitalWrite(this->step_pin_z_, LOW);
             digitalWrite(this->step_pin_a_, LOW);
-            vTaskDelay(0.001 * this->motorDelayTime_); 
+            vTaskDelay(0.001 * this->motorDelayTime_/portTICK_PERIOD_MS); 
         }
         void n_step(int steps) {
             for (int step = 0; step <= steps; ++step) {
@@ -155,6 +154,7 @@ class __Move__ {
                     one_step_anticlockwise();
                     break;
                 case NOTHING:
+                    vTaskDelay(1/portTICK_PERIOD_MS);
                     break;
             }
         }
