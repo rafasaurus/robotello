@@ -13,8 +13,8 @@
 #endif
 #define LED_BUILTIN 13
 
-#define rightSensorPin A0 // RightSesnor
-#define leftSensorPin A1 // LeftSesnor
+#define rightSensorPin A1 // RightSesnor
+#define leftSensorPin A0 // LeftSesnor
 #define INCLUDE_vTaskDelay 1
 /* TaskHandle_t motor_task_handler; */
 void Loop(void *pvParameters);
@@ -57,7 +57,7 @@ void setup() {
             ,  NULL );
     /* vTaskStartScheduler(); */
     motor.changeDirForward();
-    motor.changeState(ONE_STEP);
+    motor.changeState(NOTHING);
     motor.startTask();
 }
 
@@ -75,32 +75,59 @@ void Loop(void *pvParameters)
         Serial.print(colorSense.getBlueColor());
         Serial.print("    Left =");
         Serial.print(lineTrackerLeft.getValue());
-        Serial.print(" Righr =");
+        Serial.print("    Righr =");
         Serial.println(lineTrackerRight.getValue());
+        trackLine();
+        if(colorSense.getRedColor() >= 450 && 
+            colorSense.getRedColor() <= 550 && 
+            colorSense.getGreenColor() >= 460 && 
+            colorSense.getGreenColor() <= 570 && 
+            colorSense.getBlueColor() >= 320 && 
+            colorSense.getBlueColor() <= 430){ 
+          Serial.print("This Color is Black");
+        }
+        
     }
 }
 
+
+
 void trackLine(){
+  if(lineTrackerLeft.getValue() >= 850 &&
+      lineTrackerLeft.getValue() <= 1060 &&
+      lineTrackerRight.getValue()  <= 1060 &&
+      lineTrackerRight.getValue() >= 850 ){
+    motor.changeDirForward();
+    motor.changeState(ONE_STEP);
+    Serial.print("GoToForward");
+  }
+  if(lineTrackerLeft.getValue() >= 20 &&
+      lineTrackerLeft.getValue() <= 200 &&
+      lineTrackerRight.getValue() <= 1060 &&
+      lineTrackerRight.getValue() >= 850 ){
+    for(int i= 0; i <= 20; i++){
+     motor.changeState(ONE_STEP_ANTI_CLK_WISE);
+      Serial.print("TurnRight_ClcWise");
+       }
+  }
+  if(lineTrackerLeft.getValue() >= 850 &&
+      lineTrackerLeft.getValue() <= 1060 &&
+      lineTrackerRight.getValue() <= 200 &&
+      lineTrackerRight.getValue() >= 20){
+    for(int i= 0; i <= 20; i++){                 
+      motor.changeState(ONE_STEP_CLK_WISE);
+      Serial.print("TurnRight_ClcWise");
+       }
+  }
+  else {
   
-}
-void colorIsWhite(){
+  }
+    motor.changeState(NOTHING);
+    
+  }
   
-}
-void colorIsBlck(){
-  
-}
-void leftSensorIsBlack(){
-  
-}
-void leftSensorIsWhite(){
-  
-}
-void rightSensorIsBlack(){
-  
-}
-void rightSensorIsWhite(){
-  
-}
+
+
 void loop() {
     // do nothing
 }
