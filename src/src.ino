@@ -3,6 +3,7 @@
 #include "__Move__.h"
 #include "__Ultrasonic__.h"
 #include "__ColorSense__.h"
+#include "__LineTracker__.h"
 
 #ifndef RTOS
 #define RTOS
@@ -19,10 +20,11 @@
 void Loop(void *pvParameters);
 
 __ColorSense__ colorSense;
-/* __Servo__ arm(0, 60, 15, 5); */
-/* __Servo__ armTwo(0, 168, 30, 3); */
-/* __Servo__ armOne(0, 180, 30,4); */
-/* __Servo__ armRotate(2); */
+// define servos -> min, max, delay, pin
+__Servo__ *arm;
+__Servo__ *armTwo;
+__Servo__ *armOne;
+__Servo__ *armRotate;
 
 __Move__ motor(X_STP,
         Y_STP,
@@ -31,49 +33,74 @@ __Move__ motor(X_STP,
         X_DIR,
         Y_DIR, Z_DIR,
         A_DIR,
-        100);
+        120);
 __Ultrasonic__ ultrasonic;
+// lineTracker example "whiteLineThreshold, blackLineThreshold, blackLineOffset, whiteLineOffset, pin"
+__LineTracker__ lineTrackerLeft(10, 10, 100, 200, 1);
+__LineTracker__ lineTrackerRight(10, 10, 100, 200, 0);
+
 void setup() {
-    pinMode(LED_BUILTIN, OUTPUT);
+    arm = new __Servo__(0, 60, 15, 5, 20);
+    armOne = new __Servo__(0, 180, 30,4, 180);
+    armTwo = new __Servo__(0, 168, 30, 3, 30);
+    armRotate = new __Servo__(2, 132);
+
     Serial.begin(115200);
     Serial.print("setup complete");
-    Serial.print("setup complete");
-    Serial.print("setup complete");
-    Serial.print("setup complete");
-    Serial.print("setup complete");
-    Serial.print("setup complete");
-    /* motor.changeDirForward(); */
-    /* arm.open(); */
-    pinMode(13, OUTPUT);
+
     xTaskCreate(
             Loop
             ,  (const portCHAR *)"Blink"   // A name just for humans
             ,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
             ,  NULL
-            ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+            ,  3  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
             ,  NULL );
     /* vTaskStartScheduler(); */
+    motor.changeDirForward();
     motor.changeState(ONE_STEP);
     motor.startTask();
 }
 
-/* Task1 with priority 1 */
-void Loop(void *pvParameters)  // This is a task.
+void Loop(void *pvParameters)
 {
     (void) pvParameters;
-    while(1) // A Task shall never return or exit.
+    while(1)
     {
-        Serial.print("\nALAZAN");
-        digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-        vTaskDelay( 1000 / portTICK_PERIOD_MS ); // wait for one second
-        motor.changeState(ONE_STEP);
-        Serial.print("alazan");
-        digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-        vTaskDelay( 1000 / portTICK_PERIOD_MS ); // wait for one second
-        motor.changeState(NOTHING);
+          vTaskDelay(500 / portTICK_PERIOD_MS); // wait for one second
+        Serial.print("R=");
+        Serial.print(colorSense.getRedColor());
+        Serial.print(" G=");
+        Serial.print(colorSense.getGreenColor());
+        Serial.print(" B=");
+        Serial.print(colorSense.getBlueColor());
+        Serial.print("    Left =");
+        Serial.print(lineTrackerLeft.getValue());
+        Serial.print(" Righr =");
+        Serial.println(lineTrackerRight.getValue());
     }
 }
 
+void trackLine(){
+  
+}
+void colorIsWhite(){
+  
+}
+void colorIsBlck(){
+  
+}
+void leftSensorIsBlack(){
+  
+}
+void leftSensorIsWhite(){
+  
+}
+void rightSensorIsBlack(){
+  
+}
+void rightSensorIsWhite(){
+  
+}
 void loop() {
-    //nothing
+    // do nothing
 }
