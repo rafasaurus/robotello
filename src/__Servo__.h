@@ -22,7 +22,7 @@ class __Servo__ {
     __Servo__(int pin_, int defaultAngle); void open();
     void close();
     void setAngle(int angle);
-    void setAngleSlowly(int angle);
+    void liftTrashCan(int angle);
 };
 
 __Servo__::__Servo__(int min_, int max_, int delay_, int pin_, int defaultAngle) {
@@ -58,7 +58,7 @@ __Servo__::close () {
 }
 // for getting trash ca
 void
-__Servo__::setAngleSlowly (int angle) {
+__Servo__::liftTrashCan (int angle) {
   if (this->angle_ > angle) {
     for (int ang = this->angle_; ang >= angle; ang -= 1) {
       delay(this->delay_);

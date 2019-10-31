@@ -14,8 +14,10 @@
 // Define States of State-Machine
 #define ERROR 0
 #define TRACK_LINE 1
+#define TRACK_LINE_1 5
 #define ROTATE_RIGHT_90 2
 #define ROTATE_LEFT_90 3
+#define TRASH_CAN 4
 
 #define LED_BUILTIN 13
 #define rightSensorPin A1 // RightSesnor
@@ -43,7 +45,7 @@ __Move__ motor(X_STP,
         X_DIR,
         Y_DIR, Z_DIR,
         A_DIR,
-        120);
+        200);
 
 void
 setup() {
@@ -79,6 +81,13 @@ Loop(void *pvParameters)
             case TRACK_LINE:
                 trackLine();
                 vTaskDelay(150/portTICK_PERIOD_MS);
+                debugColorSense();
+                if (inRange(colorSense.getRedColor(), 27, 36) &&
+                    inRange(colorSense.getGreenColor(), 27, 37) &&
+                    inRange(colorSense.getBlueColor(), 15, 25)) {
+                    state = TRASH_CAN;
+                    break;
+                }
                 break;
             case ROTATE_RIGHT_90:
                 turnRight90();
@@ -87,12 +96,78 @@ Loop(void *pvParameters)
                 turnLeft90();
                 break;
             case ERROR:
-                Serial.println("Erorr Occured");
+                Serial.println("Shnorhavor amanor ev surb cnund");
                 break;
+            case TRASH_CAN:
+                nStepForward(2000);
+                motor.changeState(NOTHING);
+                
+                // open all the arms
+                armOne->close();
+                armTwo->open();
+                arm->close();
+
+                turnRight90();
+                motor.changeState(ONE_STEP);
+                nStepForward(1000);
+                motor.changeState(NOTHING);
+
+                // get the trash can and lift
+                arm->open();                
+                armOne->liftTrashCan(50);
+                armTwo->liftTrashCan(120);
+
+                // put trash can back
+                armOne->close();
+                armTwo->open();
+                arm->close();
+
+                // get back  
+                motor.changeState(ONE_STEP);
+                nStepBackward(1000);
+                motor.changeState(NOTHING);
+                
+                // close the arms
+                armOne->open();
+                armTwo->close();
+                
+                // get back again
+                motor.changeState(ONE_STEP);
+                nStepBackward(1000);
+                motor.changeState(NOTHING); 
+                turnLeft90();
+                
+                state = TRACK_LINE_1;
+                break;
+            case TRACK_LINE_1:
+                motor.changeDirForward();
+                trackLine();
+                vTaskDelay(150/portTICK_PERIOD_MS);
         }
     }
 }
 
+inline
+void
+nStepForward(int steps) {
+    motor.changeDirForward();
+    motor.changeState(ONE_STEP); 
+    while(!motor.n_step(steps)) {
+        vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
+    }
+}
+
+inline
+void
+nStepBackward(int steps) {
+    motor.changeDirBackward();
+    motor.changeState(ONE_STEP); 
+    while(!motor.n_step(steps)) {
+        vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
+    }
+}
+
+inline
 void
 turnRight90() {
     motor.changeDirRight();
@@ -100,7 +175,6 @@ turnRight90() {
     while(!motor.n_step(STEPS_FOR_90_DEGREE)) {
         vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
     }
-    motor.changeState(NOTHING);
 }
 
 void
@@ -142,15 +216,27 @@ trackLine(){
     }
 }
 
+inline void
+debugColorSense() {
+    Serial.print("R=");
+    Serial.print(colorSense.getRedColor());
+    Serial.print(" G=");
+    Serial.print(colorSense.getGreenColor()); 
+    Serial.print(" B=");
+    Serial.println(colorSense.getBlueColor());
+}
+
+inline bool
+inRange (int value, int min, int max) {
+    if (value >= min && value <= max)
+        return true;
+    else 
+        return false;
+}
 void
 loop() {
     // do nothing
 }
-/* Serial.print("R="); */
-/* Serial.print(colorSense.getRedColor()); */
-/* Serial.print(" G="); */
-/* Serial.print(colorSense.getGreenColor()); */ /* Serial.print(" B="); */
-/* Serial.print(colorSense.getBlueColor()); */
 /* Serial.print("    Left ="); */
 /* Serial.print(lineTrackerLeft.getValue()); */
 /* Serial.print("    Righr ="); */
