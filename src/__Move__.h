@@ -36,6 +36,7 @@ class __Move__ {
         uint8_t dir_pin_a_;
         int motorDelayTime_;
         int state_;
+        int step_cnt_;
     public:
         __Move__(int step_pin_x_, 
                 int step_pin_y_, 
@@ -55,6 +56,7 @@ class __Move__ {
             this->dir_pin_z_ = dir_pin_z_;
             this->dir_pin_a_ = dir_pin_a_;
             this->motorDelayTime_ = motorDelayTime_;
+            this->step_cnt_ = 0;
 
             pinMode(this->dir_pin_x_, OUTPUT);
             pinMode(this->dir_pin_y_, OUTPUT);
@@ -104,6 +106,7 @@ class __Move__ {
             digitalWrite(this->dir_pin_a_, 0);
         }
         void one_step() {
+            this->step_cnt_++;
             digitalWrite(this->step_pin_x_, HIGH);
             digitalWrite(this->step_pin_y_, HIGH);
             digitalWrite(this->step_pin_z_, HIGH);
@@ -136,9 +139,12 @@ class __Move__ {
             digitalWrite(this->step_pin_a_, LOW);
             delayMicroseconds(this->motorDelayTime_); 
         }
-        void n_step(int steps) {
-            for (int step = 0; step <= steps; ++step) {
-                one_step();
+        bool n_step(int steps) {
+            if (this->step_cnt_ >= steps) {
+                this->step_cnt_ = 0;
+                return true;
+            } else {
+                return false;
             }
         }
         void changeMotorDelay(int del) {
@@ -150,6 +156,7 @@ class __Move__ {
         void update() {
             switch (this->state_) {
                 case ONE_STEP: // one_step
+                    this->step_cnt_ = 0;
                     one_step();
                     break;
                 case ONE_STEP_CLK_WISE: // one_step_clockwise

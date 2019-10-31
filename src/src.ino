@@ -66,7 +66,7 @@ void Loop(void *pvParameters)
     motor.changeDirForward();
     while(1)
     {
-        vTaskDelay(600 / portTICK_PERIOD_MS); // wait for one second
+        vTaskDelay(150 / portTICK_PERIOD_MS); // wait for one second
         /* Serial.print("R="); */
         /* Serial.print(colorSense.getRedColor()); */
         /* Serial.print(" G="); */
@@ -76,61 +76,45 @@ void Loop(void *pvParameters)
         /* Serial.print(lineTrackerLeft.getValue()); */
         /* Serial.print("    Righr ="); */
         /* Serial.println(lineTrackerRight.getValue()); */
-
-        // if two sensors are black
-        if(lineTrackerLeft.getValue() >= 300 &&
-                lineTrackerLeft.getValue() <= 1060 &&
-                lineTrackerRight.getValue()  <= 1060 &&
-                lineTrackerRight.getValue() >= 300 ){
-            motor.changeState(ONE_STEP);
-            Serial.print(1);
-        }
-        // if left sensor is white , right sensor is black
-        if(lineTrackerLeft.getValue() >= 0 &&
-                lineTrackerLeft.getValue() <= 250 &&
-                lineTrackerRight.getValue() <= 1060 &&
-                lineTrackerRight.getValue() >= 300 ){
-            motor.changeState(ONE_STEP_ANTI_CLK_WISE);
-            Serial.print(2);
-        }
-        // if left sensor is black , right sensor is white
-        if(lineTrackerLeft.getValue() >= 300 &&
-                lineTrackerLeft.getValue() <= 1060 &&
-                lineTrackerRight.getValue() <= 250 &&
-                lineTrackerRight.getValue() >= 0){               
-            motor.changeState(ONE_STEP_CLK_WISE);
-            Serial.print(3);
-        }
+        trackLine();
     }
 }
 
+void turnRight90() {
+    motor.changeDirRight();
+    motor.changeState(ONE_STEP); 
+    while(!motor.n_step(500)) {
+        Serial.print("changing right\n");
+        /* vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second */
+    }
+    motor.changeDirForward();
+    motor.changeState(ONE_STEP);
+    delay(1000);
+}
 void trackLine(){
-    if(lineTrackerLeft.getValue() >= 750 &&
+    // if two sensors are black
+    if(lineTrackerLeft.getValue() >= 300 &&
             lineTrackerLeft.getValue() <= 1060 &&
             lineTrackerRight.getValue()  <= 1060 &&
-            lineTrackerRight.getValue() >= 750 ){
+            lineTrackerRight.getValue() >= 300 ){
         motor.changeState(ONE_STEP);
-        Serial.println("GoToForward");
+        Serial.print(1);
     }
-    if(lineTrackerLeft.getValue() >= 20 &&
-            lineTrackerLeft.getValue() <= 200 &&
+    // if left sensor is white , right sensor is black
+    if(lineTrackerLeft.getValue() >= 0 &&
+            lineTrackerLeft.getValue() <= 250 &&
             lineTrackerRight.getValue() <= 1060 &&
-            lineTrackerRight.getValue() >= 750 ){
-        for(int i= 0; i <= 100; i++){
-            motor.changeState(ONE_STEP_ANTI_CLK_WISE);
-            Serial.println("TurnRight_AntiClcWise");
-        }
+            lineTrackerRight.getValue() >= 300 ){
+        motor.changeState(ONE_STEP_ANTI_CLK_WISE);
+        Serial.print(2);
     }
-    if(lineTrackerLeft.getValue() >= 750 &&
+    // if left sensor is black , right sensor is white
+    if(lineTrackerLeft.getValue() >= 300 &&
             lineTrackerLeft.getValue() <= 1060 &&
-            lineTrackerRight.getValue() <= 200 &&
-            lineTrackerRight.getValue() >= 20){
-        for(int i= 0; i <= 100; i++){                 
-            motor.changeState(ONE_STEP_CLK_WISE);
-            Serial.println("TurnRight_ClcWise");
-        }
-    }
-    else {
+            lineTrackerRight.getValue() <= 250 &&
+            lineTrackerRight.getValue() >= 0){               
+        motor.changeState(ONE_STEP_CLK_WISE);
+        Serial.print(3);
     }
     /* motor.changeState(NOTHING); */
 }
