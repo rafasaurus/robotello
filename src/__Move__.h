@@ -85,6 +85,8 @@ class __Move__ {
             digitalWrite(this->dir_pin_y_, 0);
             digitalWrite(this->dir_pin_z_, 1);
             digitalWrite(this->dir_pin_a_, 1);
+            delayMicroseconds(this->motorDelayTime_);
+
         }
 
         void changeDirLeft() {
@@ -92,6 +94,7 @@ class __Move__ {
             digitalWrite(this->dir_pin_y_, 1);
             digitalWrite(this->dir_pin_z_, 0);
             digitalWrite(this->dir_pin_a_, 0);
+            delayMicroseconds(this->motorDelayTime_);
         }
 
         void goLeft() {
@@ -116,6 +119,7 @@ class __Move__ {
         // with parameter delayDifference 
         // smooth start, smooth stop
         void one_step_clockwise() {
+            // this->changeDirForward();
             digitalWrite(this->step_pin_x_, HIGH);
             digitalWrite(this->step_pin_y_, HIGH);
             delayMicroseconds(this->motorDelayTime_); 
@@ -124,6 +128,7 @@ class __Move__ {
             delayMicroseconds(this->motorDelayTime_); 
         }
         void one_step_anticlockwise() {
+            // this->changeDirForward();
             digitalWrite(this->step_pin_z_, HIGH);
             digitalWrite(this->step_pin_a_, HIGH);
             delayMicroseconds(this->motorDelayTime_); 
