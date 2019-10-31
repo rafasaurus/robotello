@@ -60,7 +60,7 @@ setup() {
     Serial.print("setup complete");
 }
 
-    void
+void
 Loop(void *pvParameters)
 {
     (void) pvParameters;
@@ -78,7 +78,6 @@ turnRight90() {
     while(!motor.n_step(STEPS_FOR_90_DEGREE)) {
         vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
     }
-    motor.changeDirForward();
     motor.changeState(NOTHING);
 }
 
@@ -108,8 +107,8 @@ trackLine(){
         motor.changeState(ONE_STEP_CLK_WISE);
         Serial.print(3);
     }
-    /* motor.changeState(NOTHING); */
 }
+
 void
 loop() {
     // do nothing
