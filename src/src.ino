@@ -11,6 +11,12 @@
 #include <event_groups.h>
 #include <queue.h>
 #endif
+// Define States of State-Machine
+#define ERROR 0
+#define TRACK_LINE 1
+#define ROTATE_RIGHT_90 2
+#define ROTATE_LEFT_90 3
+
 #define LED_BUILTIN 13
 #define rightSensorPin A1 // RightSesnor
 #define leftSensorPin A0 // LeftSesnor
@@ -65,9 +71,25 @@ Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
+
+    int state = TRACK_LINE;
     while(1) {
-        turnRight90();
-        vTaskDelay(4000 / portTICK_PERIOD_MS); // wait for one second
+        // Main State-Machine
+        switch (state) {
+            case TRACK_LINE:
+                trackLine();
+                vTaskDelay(150/portTICK_PERIOD_MS);
+                break;
+            case ROTATE_RIGHT_90:
+                turnRight90();
+                break;
+            case ROTATE_LEFT_90:
+                turnLeft90();
+                break;
+            case ERROR:
+                Serial.println("Erorr Occured");
+                break;
+        }
     }
 }
 
@@ -82,12 +104,23 @@ turnRight90() {
 }
 
 void
+turnLeft90() {
+    motor.changeDirLeft();
+    motor.changeState(ONE_STEP); 
+    while(!motor.n_step(STEPS_FOR_90_DEGREE)) {
+        vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
+    }
+    motor.changeState(NOTHING);
+}
+
+void
 trackLine(){
     // if two sensors are black
     if(lineTrackerLeft.getValue() >= 300 &&
             lineTrackerLeft.getValue() <= 1060 &&
             lineTrackerRight.getValue()  <= 1060 &&
             lineTrackerRight.getValue() >= 300 ) {
+        
         motor.changeState(ONE_STEP);
         Serial.print(1);
     }
