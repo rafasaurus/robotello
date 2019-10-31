@@ -83,19 +83,19 @@ class __Move__ {
         }
 
         void changeDirRight() {
-            digitalWrite(this->dir_pin_x_, 0);
-            digitalWrite(this->dir_pin_y_, 0);
-            digitalWrite(this->dir_pin_z_, 1);
-            digitalWrite(this->dir_pin_a_, 1);
+            digitalWrite(this->dir_pin_x_, 1);
+            digitalWrite(this->dir_pin_y_, 1);
+            digitalWrite(this->dir_pin_z_, 0);
+            digitalWrite(this->dir_pin_a_, 0);
             delayMicroseconds(this->motorDelayTime_);
 
         }
 
         void changeDirLeft() {
-            digitalWrite(this->dir_pin_x_, 1);
-            digitalWrite(this->dir_pin_y_, 1);
-            digitalWrite(this->dir_pin_z_, 0);
-            digitalWrite(this->dir_pin_a_, 0);
+            digitalWrite(this->dir_pin_x_, 0);
+            digitalWrite(this->dir_pin_y_, 0);
+            digitalWrite(this->dir_pin_z_, 1);
+            digitalWrite(this->dir_pin_a_, 1);
             delayMicroseconds(this->motorDelayTime_);
         }
 
@@ -154,9 +154,9 @@ class __Move__ {
             this->state_ = state;
         }
         void update() {
+            // Move State-Machine
             switch (this->state_) {
                 case ONE_STEP: // one_step
-                    this->step_cnt_ = 0;
                     one_step();
                     break;
                 case ONE_STEP_CLK_WISE: // one_step_clockwise
