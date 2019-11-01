@@ -103,38 +103,38 @@ Loop(void *pvParameters)
                 motor.changeState(NOTHING);
                 
                 // open all the arms
-                armOne->close();
-                armTwo->open();
-                arm->close();
+                armOne->open();
+                armTwo->close();//reversed servo
+                arm->open();
 
                 turnRight90();
                 motor.changeState(ONE_STEP);
-                nStepForward(1000);
+                nStepForward(2000);
                 motor.changeState(NOTHING);
 
                 // get the trash can and lift
-                arm->open();                
+                arm->close();                
                 armOne->liftTrashCan(50);
                 armTwo->liftTrashCan(120);
 
                 // put trash can back
-                armOne->close();
-                armTwo->open();
-                arm->close();
+                armOne->open();
+                armTwo->close();
+                arm->open();
 
                 // get back  
                 motor.changeState(ONE_STEP);
-                nStepBackward(1000);
+                nStepBackward(2300);
                 motor.changeState(NOTHING);
                 
                 // close the arms
-                armOne->open();
-                armTwo->close();
+                armOne->close();
+                armTwo->open();
                 
                 // get back again
-                motor.changeState(ONE_STEP);
-                nStepBackward(1000);
-                motor.changeState(NOTHING); 
+//                motor.changeState(ONE_STEP);
+//                nStepBackward(300);
+//                motor.changeState(NOTHING); 
                 turnLeft90();
                 
                 state = TRACK_LINE_1;

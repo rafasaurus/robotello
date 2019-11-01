@@ -9,7 +9,6 @@
 #include <event_groups.h>
 #include <queue.h>
 #endif
-
 class __Servo__ {
   private:
     int min_;
@@ -39,7 +38,7 @@ __Servo__::__Servo__(int pin_, int defaultAngle) {
   this->setAngle(defaultAngle);
 }
 void
-__Servo__::open() {
+__Servo__::close() {
   for (int angle = this->angle_; angle <= this->max_; angle += 1) {
     delay(this->delay_);
     this->servo_.write(angle);
@@ -48,7 +47,7 @@ __Servo__::open() {
   }
 }
 void
-__Servo__::close () {
+__Servo__::open () {
   for (int angle = this->angle_; angle >= this->min_; angle -= 1) {
     delay(this->delay_);
     this->servo_.write(angle);
