@@ -18,6 +18,7 @@
 #define ROTATE_RIGHT_90 2
 #define ROTATE_LEFT_90 3
 #define TRASH_CAN 4
+#define PARKING_FIRST 7
 
 #define LED_BUILTIN 13
 #define rightSensorPin A1 // RightSesnor
@@ -45,7 +46,7 @@ __Move__ motor(X_STP,
         X_DIR,
         Y_DIR, Z_DIR,
         A_DIR,
-        200);
+        150);
 
 void
 setup() {
@@ -74,8 +75,10 @@ Loop(void *pvParameters)
     (void) pvParameters;
     motor.changeDirForward();
 
-    int state = TRACK_LINE;
+//    int state = TRACK_LINE;
+      int state = PARKING_FIRST;
     while(1) {
+      
         // Main State-Machine
         switch (state) {
             case TRACK_LINE:
@@ -143,8 +146,13 @@ Loop(void *pvParameters)
                 motor.changeDirForward();
                 trackLine();
                 vTaskDelay(150/portTICK_PERIOD_MS);
-        }
+        
+            case PARKING_FIRST:
+            rightParking();
+            state = ERROR;
+            break;
     }
+}
 }
 
 inline
@@ -226,6 +234,22 @@ debugColorSense() {
     Serial.println(colorSense.getBlueColor());
 }
 
+void rightParking(){
+     motor.changeState(ONE_STEP);
+     nStepForward(2500);
+     motor.changeState(NOTHING);
+     motor.changeDirLeft();
+     motor.changeState(ONE_STEP); 
+        while(!motor.n_step(STEPS_FOR_90_DEGREE)) {
+        vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
+    }
+     motor.changeState(ONE_STEP);
+     nStepBackward(9000);
+     motor.changeState(NOTHING);
+     
+}
+
+
 inline bool
 inRange (int value, int min, int max) {
     if (value >= min && value <= max)
@@ -233,6 +257,7 @@ inRange (int value, int min, int max) {
     else 
         return false;
 }
+
 void
 loop() {
     // do nothing
