@@ -24,6 +24,7 @@
 #define INCLUDE_vTaskDelay 1
 #define STEPS_FOR_90_DEGREE 6400
 
+float alpha = 0.5;
 void Loop(void *pvParameters);
 __Servo__ *arm;
 __Servo__ *armTwo;
@@ -47,7 +48,7 @@ __Move__ motor(X_STP,
         X_DIR,
         Y_DIR, Z_DIR,
         A_DIR,
-        180);
+        150);
 
 void
 setup() {
@@ -74,6 +75,10 @@ Loop(void *pvParameters)
     (void) pvParameters;
     motor.changeDirForward();
     int state = TRACK_LINE;
+    // Filter parameters
+    int previous_colorSense1_Red = 0;
+    int previous_colorSense1_Green = 0;
+    int previous_colorSense1_Blue = 0;
     while(1) {
         /* if (serial.getMessage() == "asdf") { */
         /*     state = ERROR; */
@@ -83,7 +88,22 @@ Loop(void *pvParameters)
             case TRACK_LINE:
                 trackLine();
                 vTaskDelay(150/portTICK_PERIOD_MS);
-                debugColorSense();
+                /* debugColorSense(); */
+                // Basic Filtering
+                float current_colorSense1_Red = alpha * colorSense1.getRedColor() + (1-alpha) * previous_colorSense1_Red;
+                float current_colorSense1_Green = alpha * colorSense1.getGreenColor() + (1-alpha) * previous_colorSense1_Green;
+                float current_colorSense1_Blue = alpha * colorSense1.getBlueColor() + (1-alpha) * previous_colorSense1_Blue;
+                
+                previous_colorSense1_Red = current_colorSense1_Red;
+                previous_colorSense1_Green = current_colorSense1_Green;
+                previous_colorSense1_Blue = current_colorSense1_Blue;
+                
+                /* Serial.print("R="); */
+                Serial.print(current_colorSense1_Red);
+                Serial.print(" ");
+                Serial.print(current_colorSense1_Green); 
+                Serial.print(" ");
+                Serial.println(current_colorSense1_Blue);
                 /* if (inRange(colorSense1.getRedColor(), 100, 150) && */
                 /*         inRange(colorSense1.getGreenColor(), 100, 150) && */
                 /*         inRange(colorSense1.getBlueColor(),80, 120)) { */
