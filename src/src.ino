@@ -82,14 +82,14 @@ Loop(void *pvParameters)
         switch (state) {
             case TRACK_LINE:
                 trackLine();
-                vTaskDelay(75/portTICK_PERIOD_MS);
+                vTaskDelay(150/portTICK_PERIOD_MS);
                 debugColorSense();
-                if (inRange(colorSense.getRedColor(), 100, 150) &&
-                        inRange(colorSense.getGreenColor(), 100, 150) &&
-                        inRange(colorSense.getBlueColor(),80, 120)) {
-                    state = TRASH_CAN;
-                    break;
-                }
+                /* if (inRange(colorSense1.getRedColor(), 100, 150) && */
+                /*         inRange(colorSense1.getGreenColor(), 100, 150) && */
+                /*         inRange(colorSense1.getBlueColor(),80, 120)) { */
+                /*     state = TRASH_CAN; */
+                /*     break; */
+                /* } */
                 break;
             case ROTATE_RIGHT_90:
                 turnRight90();
@@ -226,11 +226,11 @@ trackLine(){
 inline void
 debugColorSense() {
     Serial.print("R=");
-    Serial.print(colorSense.getRedColor());
+    Serial.print(colorSense1.getRedColor());
     Serial.print(" G=");
-    Serial.print(colorSense.getGreenColor()); 
+    Serial.print(colorSense1.getGreenColor()); 
     Serial.print(" B=");
-    Serial.println(colorSense.getBlueColor());
+    Serial.println(colorSense1.getBlueColor());
 }
 
 void rightParking(){
@@ -254,7 +254,8 @@ inRange (int value, int min, int max) {
     else 
         return false;
 }
-
+/* inline int */
+/* filter (in */
 void
 loop() {
     // All code is handled by RTOS tasks

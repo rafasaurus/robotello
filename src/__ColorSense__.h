@@ -23,9 +23,11 @@ class __ColorSense__ {
         int sensorOut;
     public:
         __ColorSense__(int s0, int s1, int s2, int s3, int sensorOut) {
+            this->s0 = s0;
             this->s1 = s1;
             this->s2 = s2;
             this->s3 = s3;
+            this->sensorOut = sensorOut;
             pinMode(s0, OUTPUT);
             pinMode(s1, OUTPUT);
             pinMode(s2, OUTPUT);
@@ -38,20 +40,19 @@ class __ColorSense__ {
         int getRedColor() {
             digitalWrite(s2,LOW);
             digitalWrite(s3,LOW);
-            this->frequency = pulseIn(sensorOut, LOW);
+            this->frequency = pulseIn(this->sensorOut, LOW);
             return this->frequency;
         }
         int getGreenColor() {
-
             digitalWrite(s2,HIGH);
             digitalWrite(s3,HIGH);
-            this->frequency = pulseIn(sensorOut, LOW);
+            this->frequency = pulseIn(this->sensorOut, LOW);
             return this->frequency;
         }
         int getBlueColor() {
             digitalWrite(s2,LOW);
             digitalWrite(s3,HIGH);
-            this->frequency = pulseIn(sensorOut, LOW);
+            this->frequency = pulseIn(this->sensorOut, LOW);
             return this->frequency;
         }
 };
