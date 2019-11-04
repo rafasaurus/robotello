@@ -19,6 +19,8 @@
 #define ROTATE_LEFT_90 3
 #define TRASH_CAN 4
 #define PARKING_FIRST 7
+#define turnRight1 8
+#define part2 9
 
 #define LED_BUILTIN 13
 #define rightSensorPin A1 // RightSesnor
@@ -74,26 +76,46 @@ Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
+    ;
 
-//    int state = TRACK_LINE;
-      int state = PARKING_FIRST;
+    int state = TRACK_LINE;
+//      int state = PARKING_FIRST;
     while(1) {
+      
       
         // Main State-Machine
         switch (state) {
             case TRACK_LINE:
+            debugColorSense();
                 trackLine();
                 vTaskDelay(150/portTICK_PERIOD_MS);
-                debugColorSense();
-                if (inRange(colorSense.getRedColor(), 27, 36) &&
-                    inRange(colorSense.getGreenColor(), 27, 37) &&
-                    inRange(colorSense.getBlueColor(), 15, 25)) {
-                    state = TRASH_CAN;
-                    break;
-                }
+                
+                if (inRange(colorSense.getRedColor(),20,60) &&
+                    inRange(colorSense.getGreenColor(), 10, 50) &&
+                    inRange(colorSense.getBlueColor(), 10, 40)) {
+//                    state = TRASH_CAN;
+                    Serial.print("is white");
+                    }
+                    else{
+                       Serial.print("is Black");
+                    }
+                   // if left sensor is black , right sensor is white
+                   if(lineTrackerLeft.getValue() >= 0 &&
+                   lineTrackerLeft.getValue() <= 250 &&
+                   lineTrackerRight.getValue() <= 250 &&
+                   lineTrackerRight.getValue() >= 0 &&
+                   inRange(colorSense.getRedColor(),20,60) &&
+                    inRange(colorSense.getGreenColor(), 10, 50) &&
+                    inRange(colorSense.getBlueColor(), 10, 40))
+                   {
+                  state = turnRight1;
+                  
+                  break;
+                   }
                 break;
             case ROTATE_RIGHT_90:
                 turnRight90();
+               
                 break;
             case ROTATE_LEFT_90:
                 turnLeft90();
@@ -151,6 +173,24 @@ Loop(void *pvParameters)
             rightParking();
             state = ERROR;
             break;
+
+            
+            case turnRight1:
+                
+                nStepForward(9000);
+               vTaskDelay(10/portTICK_PERIOD_MS);
+                
+                turnRight90();
+                 motor.changeState(NOTHING);
+                  state = part2;
+                 break;
+                 
+           case part2:
+          trackLine();
+          motor.changeDirForward();
+                trackLine();
+                vTaskDelay(150/portTICK_PERIOD_MS);
+           break;
     }
 }
 }
@@ -206,6 +246,14 @@ trackLine(){
         motor.changeState(ONE_STEP);
         Serial.print(1);
     }
+//     if(lineTrackerLeft.getValue() >= 0 &&
+//            lineTrackerLeft.getValue() <= 250 &&
+//            lineTrackerRight.getValue()  <= 250 &&
+//            lineTrackerRight.getValue() >= 0 ) {
+//        
+//        motor.changeState(ONE_STEP);
+//        Serial.print(1);
+//    }
     // if left sensor is white , right sensor is black
     if(lineTrackerLeft.getValue() >= 0 &&
             lineTrackerLeft.getValue() <= 250 &&
