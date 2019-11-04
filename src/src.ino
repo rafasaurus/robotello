@@ -6,6 +6,7 @@
 #include "__ColorSense__.h"
 #include "__LineTracker__.h"
 #include "__Serial__.h"
+#include "__LaneCounter__.h"
 #ifndef RTOS
 #define RTOS
 #include <Arduino_FreeRTOS.h>
@@ -49,6 +50,7 @@ __Move__ motor(X_STP,
         Y_DIR, Z_DIR,
         A_DIR,
         150);
+__LaneCounter__ laneCounter;
 
 void
 setup() {
