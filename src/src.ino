@@ -42,11 +42,6 @@ __Servo__ *armOne;
 __Servo__ *armRotate;
 __Serial__ serial;
 
-// lineTracker example "whiteLineThreshold, blackLineThreshold, blackLineOffset, whiteLineOffset, pin"
-__LineTracker__ lineTrackerLeft(10, 10, 100, 200, 1);
-__LineTracker__ lineTrackerRight(10, 10, 100, 200, 0);
-__LineTracker__ lineTrackerRightRight(10, 10, 100, 200, 2);
-
 // Pins are defined in __ColorSense__.h
 __ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT);
 __ColorSense__ colorSense1(S00, S11, S22, S33, COLORSENSE_OUT1);
@@ -82,6 +77,10 @@ setup() {
     Serial3.begin(115200);
 }
 
+int lineTrackerRight = 0;
+int lineTrackerRightRight = 0;
+int lineTrackerLeft = 0;
+int lineTrackerLeftLeft = 0;
 void
 Loop(void *pvParameters)
 {
@@ -95,7 +94,6 @@ Loop(void *pvParameters)
 
     while(1) {
         /* Serial.print("sensor:"); */
-        /* Serial.println(lineTrackerRightRight.getSensor()); */
         /* Serial.print("state:"); */
         /* Serial.println(state); */
         // State-Machine
@@ -103,8 +101,8 @@ Loop(void *pvParameters)
             case DEBUG:
                 while (Serial3.available () > 0)
                     serial.processIncomingByte(Serial3.read());
-                    Serial.print("sensor_RR_:");
-                    Serial.println(serial.get_L_sensor());
+                    updateSensors();
+                    Serial.println(lineTrackerLeft);
                     break;
             case TRACK_LINE:
                 motor.changeDirForward();
@@ -148,10 +146,10 @@ Loop(void *pvParameters)
 
                 // if left sensor is black , right sensor is white
                 
-                if(lineTrackerRightRight.getSensor() <= 100 &&
-                        lineTrackerRightRight.getSensor() >= 0 &&
-                        inRange(lineTrackerRight.getValue(), 0, 250) &&
-                        inRange(colorSense.getRedColor(),20,60) &&
+                if(lineTrackerRightRight <= 100 &&
+                        lineTrackerRightRight >= 0 &&
+                        inRange(lineTrackerRight, 0, 250) &&
+                        inRange(colorSense.getRedColor(), 20, 60) &&
                         inRange(colorSense.getGreenColor(), 10, 50) &&
                         inRange(colorSense.getBlueColor(), 10, 40)) {
                     state = TURN_RIGHT1;
@@ -275,10 +273,10 @@ turnLeft90() {
 void
 trackLine(){
     // if two sensors are black
-    if(lineTrackerLeft.getValue() >= 300 &&
-            lineTrackerLeft.getValue() <= 1060 &&
-            lineTrackerRight.getValue()  <= 1060 &&
-            lineTrackerRight.getValue() >= 300 ) {
+    if(lineTrackerLeft >= 300 &&
+            lineTrackerLeft <= 1060 &&
+            lineTrackerRight  <= 1060 &&
+            lineTrackerRight >= 300 ) {
 
         motor.changeState(ONE_STEP);
     }
@@ -291,17 +289,17 @@ trackLine(){
 //        Serial.print(1);
 //    }
     // if left sensor is white , right sensor is black
-    if(lineTrackerLeft.getValue() >= 0 &&
-            lineTrackerLeft.getValue() <= 250 &&
-            lineTrackerRight.getValue() <= 1060 &&
-            lineTrackerRight.getValue() >= 300 ) {
+    if(lineTrackerLeft >= 0 &&
+            lineTrackerLeft <= 250 &&
+            lineTrackerRight <= 1060 &&
+            lineTrackerRight >= 300 ) {
         motor.changeState(ONE_STEP_ANTI_CLK_WISE);
     }
     // if left sensor is black , right sensor is white
-    if(lineTrackerLeft.getValue() >= 300 &&
-            lineTrackerLeft.getValue() <= 1060 &&
-            lineTrackerRight.getValue() <= 250 &&
-            lineTrackerRight.getValue() >= 0) {
+    if(lineTrackerLeft >= 300 &&
+            lineTrackerLeft <= 1060 &&
+            lineTrackerRight <= 250 &&
+            lineTrackerRight >= 0) {
         motor.changeState(ONE_STEP_CLK_WISE);
     }
 }
@@ -340,7 +338,13 @@ inRange (int value, int min, int max) {
 }
 /* inline int */
 /* filter (in */
-
+inline void
+updateSensors() {
+    lineTrackerRight = serial.get_R_sensor();
+    lineTrackerRightRight = serial.get_RR_sensor();;
+    lineTrackerLeft = serial.get_L_sensor();
+    lineTrackerLeftLeft = serial.get_LL_sensor();
+}
 void
 loop() {
     // All code is handled by RTOS tasks
