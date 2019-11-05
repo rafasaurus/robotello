@@ -14,6 +14,7 @@
 #include <queue.h>
 #endif
 // Define States of State-Machine
+#define DEBUG -1
 #define ERROR 0
 #define TRACK_LINE 1
 #define TRACK_LINE_1 5
@@ -74,14 +75,15 @@ setup() {
     motor.changeDirForward();
     motor.startTask();
     Serial.begin(115200);
+    Serial3.begin(115200);
 }
 
-    void
+void
 Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = TRACK_LINE;
+    int state = DEBUG;
     // Filter parameters
     int previous_colorSense1_Red = 0;
     int previous_colorSense1_Green = 0;
@@ -92,14 +94,29 @@ Loop(void *pvParameters)
         /*     state = ERROR; */
         /* }; */
         // State-Machine
-        Serial.print("sensor:");
-        Serial.println(lineTrackerRightRight.getSensor());
-        Serial.print("state:");
-        Serial.println(state);
+        /* Serial.print("sensor:"); */
+        /* Serial.println(lineTrackerRightRight.getSensor()); */
+        /* Serial.print("state:"); */
+        /* Serial.println(state); */
+        char str[4];
         switch (state) {
+            case DEBUG:
+                int i=0;
+                if (Serial3.available()) {
+                    delay(100); //allows all serial sent to be received together
+                    while(Serial3.available() && i<4) {
+                        str[i++] = Serial3.read();
+                    }
+                    str[i++]='\0';
+                }
+
+                if(i>0) {
+                    Serial.println(str);
+                }
+                break;
             case TRACK_LINE:
-            motor.changeDirForward();
-            debugColorSense();
+                motor.changeDirForward();
+                debugColorSense();
                 trackLine();
                 vTaskDelay(50/portTICK_PERIOD_MS);
                 /* debugColorSense(); */
