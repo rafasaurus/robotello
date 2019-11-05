@@ -1,10 +1,13 @@
 #ifndef __serial__
 #define __serial__
 
-#define L 1
-#define LL 3
 #define R 0
+#define L 1
 #define RR 2
+#define LL 3
+#define COLORSENSE_RED 4
+#define COLORSENSE_GREEN 5
+#define COLORSENSE_BLUE 6
 #define MAX_INPUT 32
 
 class __Serial__ {
@@ -14,6 +17,9 @@ class __Serial__ {
         int LL_;
         int R_;
         int RR_;
+        int colorSenseRed_;
+        int colorSenseGreen_;
+        int colorSenseBlue_;
     public:
         String getMessage() {
             if (Serial.available()) {
@@ -32,6 +38,15 @@ class __Serial__ {
         }
         int get_RR_sensor() {
             return this->RR_;
+        }
+        int colorSenseGetRedColor() {
+            return this->colorSenseRed_;
+        }
+        int colorSenseGetGreenColor() {
+            return this->colorSenseGreen_;
+        }
+        int colorSenseGetBlueColor() {
+            return this->colorSenseBlue_;
         }
         void processIncomingByte (const byte inByte)
         {
@@ -78,6 +93,12 @@ class __Serial__ {
                             this->R_ = position;
                         case RR:
                             this->RR_ = position;
+                        case COLORSENSE_RED:
+                            this->colorSenseRed_ = position;
+                        case COLORSENSE_GREEN:
+                            this->colorSenseGreen_ = position;
+                        case COLORSENSE_BLUE:
+                            this->colorSenseBlue_ = position;
                     }
                 }
                 // Find the next sensorData in input string

@@ -1,10 +1,10 @@
 #ifndef __colorsense__
 #define __colorsense__
 // First Sensor pins
-#define S0 45
-#define S1 44
-#define S2 42
-#define S3 43
+#define S0 2
+#define S1 3
+#define S2 5
+#define S3 4
 #define COLORSENSE_OUT 9
 // Seccond Sensor pins
 #define S00 24

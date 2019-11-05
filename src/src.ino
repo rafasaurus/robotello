@@ -3,8 +3,6 @@
 #include "__Servo__.h"
 #include "__Move__.h"
 #include "__Ultrasonic__.h"
-#include "__ColorSense__.h"
-#include "__LineTracker__.h"
 #include "__Serial__.h"
 #include "__LaneCounter__.h"
 #ifndef RTOS
@@ -18,7 +16,6 @@
 #include <stdio.h>
 
 #define DEBUG -1
-#define DEBUG1 -2
 #define ERROR 0
 #define TRACK_LINE 1
 #define TRACK_LINE_1 5
@@ -43,8 +40,8 @@ __Servo__ *armRotate;
 __Serial__ serial;
 
 // Pins are defined in __ColorSense__.h
-__ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT);
-__ColorSense__ colorSense1(S00, S11, S22, S33, COLORSENSE_OUT1);
+/* __ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT); */
+/* __ColorSense__ colorSense1(S00, S11, S22, S33, COLORSENSE_OUT1); */
 
 __Ultrasonic__ ultrasonic;
 __Move__ motor(X_STP,
@@ -81,17 +78,17 @@ int lineTrackerRight = 0;
 int lineTrackerRightRight = 0;
 int lineTrackerLeft = 0;
 int lineTrackerLeftLeft = 0;
-void
+int colorSenseRed = 0;
+int colorSenseGreen = 0;
+int colorSenseBlue = 0;
+
+    void
 Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
     int state = DEBUG;
     // Filter parameters
-    int previous_colorSense1_Red = 0;
-    int previous_colorSense1_Green = 0;
-    int previous_colorSense1_Blue = 0;
-
     while(1) {
         /* Serial.print("sensor:"); */
         /* Serial.print("state:"); */
@@ -101,9 +98,9 @@ Loop(void *pvParameters)
             case DEBUG:
                 while (Serial3.available () > 0)
                     serial.processIncomingByte(Serial3.read());
-                    updateSensors();
-                    Serial.println(lineTrackerLeft);
-                    break;
+                updateSensors();
+                Serial.println(lineTrackerLeft);
+                break;
             case TRACK_LINE:
                 motor.changeDirForward();
                 debugColorSense();
@@ -111,14 +108,6 @@ Loop(void *pvParameters)
                 vTaskDelay(50/portTICK_PERIOD_MS);
                 /* debugColorSense(); */
 
-                // Basic Filtering
-                /* float current_colorSense1_Red = alpha * colorSense1.getRedColor() + (1-alpha) * previous_colorSense1_Red; */
-                /* float current_colorSense1_Green = alpha * colorSense1.getGreenColor() + (1-alpha) * previous_colorSense1_Green; */
-                /* float current_colorSense1_Blue = alpha * colorSense1.getBlueColor() + (1-alpha) * previous_colorSense1_Blue; */
-                /*  */
-                /* previous_colorSense1_Red = current_colorSense1_Red; */
-                /* previous_colorSense1_Green = current_colorSense1_Green; */
-                /* previous_colorSense1_Blue = current_colorSense1_Blue; */
                 /*  */
                 /* Serial.print("R="); */
                 /* Serial.print(current_colorSense1_Red); */
@@ -145,13 +134,13 @@ Loop(void *pvParameters)
                 /* } */
 
                 // if left sensor is black , right sensor is white
-                
+
                 if(lineTrackerRightRight <= 100 &&
                         lineTrackerRightRight >= 0 &&
                         inRange(lineTrackerRight, 0, 250) &&
-                        inRange(colorSense.getRedColor(), 20, 60) &&
-                        inRange(colorSense.getGreenColor(), 10, 50) &&
-                        inRange(colorSense.getBlueColor(), 10, 40)) {
+                        inRange(colorSenseRed, 20, 60) &&
+                        inRange(colorSenseGreen, 10, 50) &&
+                        inRange(colorSenseBlue, 10, 40)) {
                     state = TURN_RIGHT1;
                     motor.changeState(NOTHING);
                     vTaskDelay(1000/portTICK_PERIOD_MS);;
@@ -160,7 +149,7 @@ Loop(void *pvParameters)
                 break;
             case ROTATE_RIGHT_90:
                 turnRight90();
-               
+
                 break;
             case ROTATE_LEFT_90:
                 turnLeft90();
@@ -280,14 +269,14 @@ trackLine(){
 
         motor.changeState(ONE_STEP);
     }
-//     if(lineTrackerLeft.getValue() >= 0 &&
-//            lineTrackerLeft.getValue() <= 250 &&
-//            lineTrackerRight.getValue()  <= 250 &&
-//            lineTrackerRight.getValue() >= 0 ) {
-//        
-//        motor.changeState(ONE_STEP);
-//        Serial.print(1);
-//    }
+    //     if(lineTrackerLeft.getValue() >= 0 &&
+    //            lineTrackerLeft.getValue() <= 250 &&
+    //            lineTrackerRight.getValue()  <= 250 &&
+    //            lineTrackerRight.getValue() >= 0 ) {
+    //        
+    //        motor.changeState(ONE_STEP);
+    //        Serial.print(1);
+    //    }
     // if left sensor is white , right sensor is black
     if(lineTrackerLeft >= 0 &&
             lineTrackerLeft <= 250 &&
@@ -307,11 +296,11 @@ trackLine(){
 inline void
 debugColorSense() {
     Serial.print("R=");
-    Serial.print(colorSense1.getRedColor());
+    Serial.print(colorSenseRed);
     Serial.print(" G=");
-    Serial.print(colorSense1.getGreenColor()); 
+    Serial.print(colorSenseGreen); 
     Serial.print(" B=");
-    Serial.println(colorSense1.getBlueColor());
+    Serial.println(colorSenseBlue);
 }
 
 void
@@ -344,6 +333,9 @@ updateSensors() {
     lineTrackerRightRight = serial.get_RR_sensor();;
     lineTrackerLeft = serial.get_L_sensor();
     lineTrackerLeftLeft = serial.get_LL_sensor();
+    colorSenseRed = serial.colorSenseGetRedColor();
+    colorSenseGreen = serial.colorSenseGetGreenColor();
+    colorSenseBlue = serial.colorSenseGetBlueColor();
 }
 void
 loop() {
