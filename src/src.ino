@@ -21,7 +21,11 @@
 #define ROTATE_LEFT_90 3
 #define TRASH_CAN 4
 #define PARKING_FIRST 7
-// ------------------------------
+#define TURN_RIGHT1 8
+
+#define LED_BUILTIN 13
+#define rightSensorPin A1 // RightSesnor
+#define leftSensorPin A0 // LeftSesnor
 #define INCLUDE_vTaskDelay 1
 #define STEPS_FOR_90_DEGREE 6400
 
@@ -36,6 +40,7 @@ __Serial__ serial;
 // lineTracker example "whiteLineThreshold, blackLineThreshold, blackLineOffset, whiteLineOffset, pin"
 __LineTracker__ lineTrackerLeft(10, 10, 100, 200, 1);
 __LineTracker__ lineTrackerRight(10, 10, 100, 200, 0);
+__LineTracker__ lineTrackerRightRight(10, 10, 100, 200, 2);
 
 // Pins are defined in __ColorSense__.h
 __ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT);
@@ -81,37 +86,64 @@ Loop(void *pvParameters)
     int previous_colorSense1_Red = 0;
     int previous_colorSense1_Green = 0;
     int previous_colorSense1_Blue = 0;
+
     while(1) {
         /* if (serial.getMessage() == "asdf") { */
         /*     state = ERROR; */
         /* }; */
         // State-Machine
+        Serial.print("sensor:");
+        Serial.println(lineTrackerRightRight.getSensor());
+        Serial.print("state:");
+        Serial.println(state);
         switch (state) {
             case TRACK_LINE:
                 trackLine();
-                vTaskDelay(150/portTICK_PERIOD_MS);
+                vTaskDelay(50/portTICK_PERIOD_MS);
                 /* debugColorSense(); */
+
                 // Basic Filtering
-                float current_colorSense1_Red = alpha * colorSense1.getRedColor() + (1-alpha) * previous_colorSense1_Red;
-                float current_colorSense1_Green = alpha * colorSense1.getGreenColor() + (1-alpha) * previous_colorSense1_Green;
-                float current_colorSense1_Blue = alpha * colorSense1.getBlueColor() + (1-alpha) * previous_colorSense1_Blue;
-                
-                previous_colorSense1_Red = current_colorSense1_Red;
-                previous_colorSense1_Green = current_colorSense1_Green;
-                previous_colorSense1_Blue = current_colorSense1_Blue;
-                
+                /* float current_colorSense1_Red = alpha * colorSense1.getRedColor() + (1-alpha) * previous_colorSense1_Red; */
+                /* float current_colorSense1_Green = alpha * colorSense1.getGreenColor() + (1-alpha) * previous_colorSense1_Green; */
+                /* float current_colorSense1_Blue = alpha * colorSense1.getBlueColor() + (1-alpha) * previous_colorSense1_Blue; */
+                /*  */
+                /* previous_colorSense1_Red = current_colorSense1_Red; */
+                /* previous_colorSense1_Green = current_colorSense1_Green; */
+                /* previous_colorSense1_Blue = current_colorSense1_Blue; */
+                /*  */
                 /* Serial.print("R="); */
-                Serial.print(current_colorSense1_Red);
-                Serial.print(" ");
-                Serial.print(current_colorSense1_Green); 
-                Serial.print(" ");
-                Serial.println(current_colorSense1_Blue);
+                /* Serial.print(current_colorSense1_Red); */
+                /* Serial.print(" "); */
+                /* Serial.print(current_colorSense1_Green);  */
+                /* Serial.print(" "); */
+                /* Serial.println(current_colorSense1_Blue); */
+                // -------------------------------
                 /* if (inRange(colorSense1.getRedColor(), 100, 150) && */
                 /*         inRange(colorSense1.getGreenColor(), 100, 150) && */
                 /*         inRange(colorSense1.getBlueColor(),80, 120)) { */
                 /*     state = TRASH_CAN; */
                 /*     break; */
                 /* } */
+                // Test the colorSensor
+                /* if (inRange(colorSense.getRedColor(),20,60) && */
+                /*         inRange(colorSense.getGreenColor(), 10, 50) && */
+                /*         inRange(colorSense.getBlueColor(), 10, 40)) { */
+                /*     //                    state = TRASH_CAN; */
+                /*     Serial.print("is white"); */
+                /* } */
+                /* else{ */
+                /*     Serial.print("is Black"); */
+                /* } */
+
+                // if left sensor is black , right sensor is white
+                if(lineTrackerRightRight.getSensor() <= 100 &&
+                        lineTrackerRightRight.getSensor() >= 0 &&
+                        inRange(colorSense.getRedColor(),20,60) &&
+                        inRange(colorSense.getGreenColor(), 10, 50) &&
+                        inRange(colorSense.getBlueColor(), 10, 40)) {
+                    state = TURN_RIGHT1;
+                    break;
+                }
                 break;
             case ROTATE_RIGHT_90:
                 turnRight90();
@@ -172,6 +204,15 @@ Loop(void *pvParameters)
                 rightParking();
                 state = ERROR;
                 break;
+
+
+            case TURN_RIGHT1:
+                nStepForward(4500);
+                vTaskDelay(10/portTICK_PERIOD_MS);
+                turnRight90();
+                motor.changeState(NOTHING);
+                state = TRACK_LINE;
+                break;
         }
     }
 }
@@ -225,7 +266,6 @@ trackLine(){
             lineTrackerRight.getValue() >= 300 ) {
 
         motor.changeState(ONE_STEP);
-        Serial.print(1);
     }
     // if left sensor is white , right sensor is black
     if(lineTrackerLeft.getValue() >= 0 &&
@@ -233,7 +273,6 @@ trackLine(){
             lineTrackerRight.getValue() <= 1060 &&
             lineTrackerRight.getValue() >= 300 ) {
         motor.changeState(ONE_STEP_ANTI_CLK_WISE);
-        Serial.print(2);
     }
     // if left sensor is black , right sensor is white
     if(lineTrackerLeft.getValue() >= 300 &&
@@ -241,7 +280,6 @@ trackLine(){
             lineTrackerRight.getValue() <= 250 &&
             lineTrackerRight.getValue() >= 0) {
         motor.changeState(ONE_STEP_CLK_WISE);
-        Serial.print(3);
     }
 }
 
