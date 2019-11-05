@@ -152,6 +152,7 @@ class __Move__ {
         }
         void changeState(int state) {
             this->state_ = state;
+            this->step_cnt_ = 0;
         }
         void update() {
             // Move State-Machine
