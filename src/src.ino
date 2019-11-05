@@ -90,15 +90,12 @@ Loop(void *pvParameters)
     int previous_colorSense1_Blue = 0;
 
     while(1) {
-        /* if (serial.getMessage() == "asdf") { */
-        /*     state = ERROR; */
-        /* }; */
-        // State-Machine
         /* Serial.print("sensor:"); */
         /* Serial.println(lineTrackerRightRight.getSensor()); */
         /* Serial.print("state:"); */
         /* Serial.println(state); */
         char str[4];
+        // State-Machine
         switch (state) {
             case DEBUG:
                 int i=0;
@@ -109,7 +106,6 @@ Loop(void *pvParameters)
                     }
                     str[i++]='\0';
                 }
-
                 if(i>0) {
                     Serial.println(str);
                 }
