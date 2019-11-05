@@ -39,10 +39,6 @@ __Servo__ *armOne;
 __Servo__ *armRotate;
 __Serial__ serial;
 
-// Pins are defined in __ColorSense__.h
-/* __ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT); */
-/* __ColorSense__ colorSense1(S00, S11, S22, S33, COLORSENSE_OUT1); */
-
 __Ultrasonic__ ultrasonic;
 __Move__ motor(X_STP,
         Y_STP,
@@ -90,50 +86,19 @@ Loop(void *pvParameters)
     int state = DEBUG;
     // Filter parameters
     while(1) {
-        /* Serial.print("sensor:"); */
-        /* Serial.print("state:"); */
-        /* Serial.println(state); */
         // State-Machine
         switch (state) {
             case DEBUG:
                 while (Serial3.available () > 0)
                     serial.processIncomingByte(Serial3.read());
                 updateSensors();
-                Serial.println(lineTrackerLeft);
+                debugColorSense();
                 break;
             case TRACK_LINE:
                 motor.changeDirForward();
                 debugColorSense();
                 trackLine();
                 vTaskDelay(50/portTICK_PERIOD_MS);
-                /* debugColorSense(); */
-
-                /*  */
-                /* Serial.print("R="); */
-                /* Serial.print(current_colorSense1_Red); */
-                /* Serial.print(" "); */
-                /* Serial.print(current_colorSense1_Green);  */
-                /* Serial.print(" "); */
-                /* Serial.println(current_colorSense1_Blue); */
-                // -------------------------------
-                /* if (inRange(colorSense1.getRedColor(), 100, 150) && */
-                /*         inRange(colorSense1.getGreenColor(), 100, 150) && */
-                /*         inRange(colorSense1.getBlueColor(),80, 120)) { */
-                /*     state = TRASH_CAN; */
-                /*     break; */
-                /* } */
-                // Test the colorSensor
-                /* if (inRange(colorSense.getRedColor(),20,60) && */
-                /*         inRange(colorSense.getGreenColor(), 10, 50) && */
-                /*         inRange(colorSense.getBlueColor(), 10, 40)) { */
-                /*     //                    state = TRASH_CAN; */
-                /*     Serial.print("is white"); */
-                /* } */
-                /* else{ */
-                /*     Serial.print("is Black"); */
-                /* } */
-
-                // if left sensor is black , right sensor is white
 
                 if(lineTrackerRightRight <= 100 &&
                         lineTrackerRightRight >= 0 &&
@@ -295,11 +260,11 @@ trackLine(){
 
 inline void
 debugColorSense() {
-    Serial.print("R=");
+    Serial.print(" ");
     Serial.print(colorSenseRed);
-    Serial.print(" G=");
+    Serial.print(" ");
     Serial.print(colorSenseGreen); 
-    Serial.print(" B=");
+    Serial.print(" ");
     Serial.println(colorSenseBlue);
 }
 
@@ -325,8 +290,7 @@ inRange (int value, int min, int max) {
     else 
         return false;
 }
-/* inline int */
-/* filter (in */
+
 inline void
 updateSensors() {
     lineTrackerRight = serial.get_R_sensor();

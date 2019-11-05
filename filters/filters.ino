@@ -1,11 +1,11 @@
 #include "__ColorSense__.h"
 #include "__LineTracker__.h"
 
-char l_str[4]; // left
-char ll_str[4]; // leftleft sensor
-char r_str[4]; // right
-char rr_str[4]; //rightright sensor
-char payload_str[4];
+char l_str[5]; // left
+char ll_str[5]; // leftleft sensor
+char r_str[5]; // right
+char rr_str[5]; //rightright sensor
+char payload_str[5];
 
 // sensorIds
 #define R 0
@@ -19,8 +19,8 @@ char payload_str[4];
 int previous_colorSense_Red = 0;
 int previous_colorSense_Green = 0;
 int previous_colorSense_Blue = 0;
+double alpha = 0.1;
 
-float alpha = 0.7;
 // Pins are defined in __ColorSense__.h
 /* __ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT); */
 __ColorSense__ colorSense(S00, S11, S22, S33, COLORSENSE_OUT1);
@@ -34,11 +34,11 @@ void loop() {
     int ll = analogRead(A3);
     int r = analogRead(A0);
     int rr = analogRead(A2);
-    // Basic Filtering
-    float current_colorSense_Red = alpha * colorSense.getRedColor() + (1-alpha) * previous_colorSense_Red;
-    float current_colorSense_Green = alpha * colorSense.getGreenColor() + (1-alpha) * previous_colorSense_Green;
-    float current_colorSense_Blue = alpha * colorSense.getBlueColor() + (1-alpha) * previous_colorSense_Blue;
 
+    // Basic Filtering
+    double current_colorSense_Red = alpha * colorSense.getRedColor() + (1-alpha) * previous_colorSense_Red;
+    double current_colorSense_Green = alpha * colorSense.getGreenColor() + (1-alpha) * previous_colorSense_Green;
+    double current_colorSense_Blue = alpha * colorSense.getBlueColor() + (1-alpha) * previous_colorSense_Blue;
     previous_colorSense_Red = current_colorSense_Red;
     previous_colorSense_Green = current_colorSense_Green;
     previous_colorSense_Blue = current_colorSense_Blue;
@@ -50,32 +50,7 @@ void loop() {
     send(current_colorSense_Red, COLORSENSE_RED);
     send(current_colorSense_Green, COLORSENSE_GREEN);
     send(current_colorSense_Blue, COLORSENSE_BLUE);
-
-    /* //Turn values into a character arrays */
-    /* itoa(l, l_str, 10); */
-    /* itoa(ll, ll_str, 10); */
-    /* itoa(r, r_str, 10); */
-    /* itoa(rr, rr_str, 10); */
-    /*  */
-    /* Serial.print(L); */
-    /* Serial.print(":"); */
-    /* Serial.print(l_str); */
-    /* Serial.print('&'); */
-    /*  */
-    /* Serial.print(LL); */
-    /* Serial.print(":"); */
-    /* Serial.print(ll_str); */
-    /* Serial.print('&'); */
-    /*  */
-    /* Serial.print(R); */
-    /* Serial.print(":"); */
-    /* Serial.print(r_str); */
-    /* Serial.print('&'); */
-    /*  */
-    /* Serial.print(RR); */
-    /* Serial.print(":"); */
-    /* Serial.print(rr_str); */
-    /* Serial.print('&'); */
+    delay(100);
 }
 inline void
 send(int payload, int sensorId) {

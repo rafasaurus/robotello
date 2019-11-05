@@ -7,11 +7,11 @@
 #define S3 4
 #define COLORSENSE_OUT 9
 // Seccond Sensor pins
-#define S00 24
-#define S11 26
-#define S22 28
-#define S33 30
-#define COLORSENSE_OUT1 8
+#define S00 11
+#define S11 8
+#define S22 6
+#define S33 7
+#define COLORSENSE_OUT1 10
 
 class __ColorSense__ {
     private:
