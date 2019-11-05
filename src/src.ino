@@ -98,6 +98,7 @@ Loop(void *pvParameters)
         Serial.println(state);
         switch (state) {
             case TRACK_LINE:
+            motor.changeDirForward();
             debugColorSense();
                 trackLine();
                 vTaskDelay(50/portTICK_PERIOD_MS);
@@ -137,12 +138,16 @@ Loop(void *pvParameters)
                 /* } */
 
                 // if left sensor is black , right sensor is white
+                
                 if(lineTrackerRightRight.getSensor() <= 100 &&
                         lineTrackerRightRight.getSensor() >= 0 &&
+                        inRange(lineTrackerRight.getValue(), 0, 250) &&
                         inRange(colorSense.getRedColor(),20,60) &&
                         inRange(colorSense.getGreenColor(), 10, 50) &&
                         inRange(colorSense.getBlueColor(), 10, 40)) {
                     state = TURN_RIGHT1;
+                    motor.changeState(NOTHING);
+                    vTaskDelay(1000/portTICK_PERIOD_MS);;
                     break;
                 }
                 break;
@@ -208,7 +213,7 @@ Loop(void *pvParameters)
                 break;
 
             case TURN_RIGHT1:
-                nStepForward(4500);
+                nStepForward(4000);
                 vTaskDelay(10/portTICK_PERIOD_MS);
                 turnRight90();
                 motor.changeState(NOTHING);
