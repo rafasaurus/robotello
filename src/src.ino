@@ -14,7 +14,11 @@
 #include <queue.h>
 #endif
 // Define States of State-Machine
+#include <string.h>
+#include <stdio.h>
+
 #define DEBUG -1
+#define DEBUG1 -2
 #define ERROR 0
 #define TRACK_LINE 1
 #define TRACK_LINE_1 5
@@ -94,22 +98,14 @@ Loop(void *pvParameters)
         /* Serial.println(lineTrackerRightRight.getSensor()); */
         /* Serial.print("state:"); */
         /* Serial.println(state); */
-        char str[4];
         // State-Machine
         switch (state) {
             case DEBUG:
-                int i=0;
-                if (Serial3.available()) {
-                    delay(100); //allows all serial sent to be received together
-                    while(Serial3.available() && i<4) {
-                        str[i++] = Serial3.read();
-                    }
-                    str[i++]='\0';
-                }
-                if(i>0) {
-                    Serial.println(str);
-                }
-                break;
+                while (Serial3.available () > 0)
+                    serial.processIncomingByte(Serial3.read());
+                    Serial.print("sensor_RR_:");
+                    Serial.println(serial.get_L_sensor());
+                    break;
             case TRACK_LINE:
                 motor.changeDirForward();
                 debugColorSense();
@@ -320,7 +316,8 @@ debugColorSense() {
     Serial.println(colorSense1.getBlueColor());
 }
 
-void rightParking(){
+void
+rightParking(){
     motor.changeState(ONE_STEP);
     nStepForward(2500);
     motor.changeState(NOTHING);
@@ -343,6 +340,7 @@ inRange (int value, int min, int max) {
 }
 /* inline int */
 /* filter (in */
+
 void
 loop() {
     // All code is handled by RTOS tasks
