@@ -16,6 +16,14 @@ char payload_str[5];
 #define COLORSENSE_RED 4
 #define COLORSENSE_GREEN 5
 #define COLORSENSE_BLUE 6
+// meanSensorIds
+#define R 7
+#define L 8
+#define RR 9
+#define LL 10
+#define COLORSENSE_RED 11
+#define COLORSENSE_GREEN 12
+#define COLORSENSE_BLUE 13
 
 int previous_colorSense_Red = 0;
 int previous_colorSense_Green = 0;
@@ -69,7 +77,7 @@ void loop() {
             current_colorSense_Green,
             current_colorSense_Blue,
             current_colorSense_Red);
-    laneCounter.getStat();
+    laneCounter.log();
     /* send(l, L); */
     /* send(ll, LL); */
     /* send(r, R); */
@@ -77,7 +85,7 @@ void loop() {
     /* send(current_colorSense_Red, COLORSENSE_RED); */
     /* send(current_colorSense_Green, COLORSENSE_GREEN); */
     /* send(current_colorSense_Blue, COLORSENSE_BLUE); */
-    delay(2);
+    delay(1000);
 }
 inline void
 send(int payload, int sensorId) {
