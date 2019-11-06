@@ -32,6 +32,9 @@ class __LaneCounter__ {
         int* l_arr;
         int* r_arr;
         int* rr_arr;
+        int* cR_arr;
+        int* cB_arr;
+        int* cG_arr;
     public:
         // init emptry lists and constructors
         __LaneCounter__() {};
@@ -56,6 +59,9 @@ class __LaneCounter__ {
             l_arr = L.getList();
             r_arr = R.getList();
             rr_arr = RR.getList();
+            cR_arr = colorSenseRed.getList();
+            cB_arr = colorSenseBlue.getList();
+            cG_arr = colorSenseGreen.getList();
         }
         void log() {
             getLists();
@@ -68,33 +74,13 @@ class __LaneCounter__ {
                 Serial.print(" r:");
                 Serial.print(r_arr[i]);
                 Serial.print(" rr:");
+                Serial.print(rr_arr[i]);
+                Serial.print(" cR:");
+                Serial.print(rr_arr[i]);
+                Serial.print(" cB:");
+                Serial.print(rr_arr[i]);
+                Serial.print(" cG:");
                 Serial.println(rr_arr[i]);
             }
-            // Serial.print("items in redQueue cnt:");
-            // Serial.println(redQueue.item_count());
-            // Serial.print("items in greenQueue cnt:");
-            // Serial.println(greenQueue.item_count());
-            // Serial.print("items in blueQueue cnt:");
-            // Serial.println(blueQueue.item_count());
-            // Serial.println("i*********************");
-            // for (int i = 0; i < 5; ++i) {
-            //     Serial.print("red:");
-            //     Serial.print(this->redQueueList[i]);
-            //     Serial.print(" green:");
-            //     Serial.print(this->greenQueueList[i]);
-            //     Serial.print(" blue:");
-            //     Serial.print(this->blueQueueList[i]);
-            //     Serial.print(" L:");
-            //     Serial.print(this->lineTrackerLeftLeftQueueList[i]);
-            //     Serial.print(" LL:");
-            //     Serial.print(this->lineTrackerLeftQueueList[i]);
-            //     Serial.print(" R:");
-            //     Serial.print(this->lineTrackerRightQueueList[i]);
-            //     Serial.print(" RR:");
-            //     Serial.println(this->lineTrackerRightRightQueueList[i]);
-            // }
-        }
-        void getColorSenseMean() {
         }
 };
-

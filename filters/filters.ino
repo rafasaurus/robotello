@@ -85,7 +85,7 @@ void loop() {
     /* send(current_colorSense_Red, COLORSENSE_RED); */
     /* send(current_colorSense_Green, COLORSENSE_GREEN); */
     /* send(current_colorSense_Blue, COLORSENSE_BLUE); */
-    delay(1000);
+    delay(1);
 }
 inline void
 send(int payload, int sensorId) {
