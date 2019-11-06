@@ -1,4 +1,3 @@
-/* #define Serial Serial1 */
 #include <Arduino.h>
 #include "__Servo__.h"
 #include "__Move__.h"
@@ -15,7 +14,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define DEBUG -1
+#define CONFIG_DEBUG -1
 #define ERROR 0
 #define TRACK_LINE 1
 #define TRACK_LINE_1 5
@@ -78,51 +77,71 @@ int colorSenseRed = 0;
 int colorSenseGreen = 0;
 int colorSenseBlue = 0;
 
-    void
+void
 Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = DEBUG;
+    int state = TRACK_LINE;
     // Filter parameters
     while(1) {
         // State-Machine
         switch (state) {
-            case DEBUG:
+#ifdef CONFIG_DEBUG
+            case CONFIG_DEBUG:
+                Serial.print("************* DEBUG *****************");
                 while (Serial3.available () > 0)
                     serial.processIncomingByte(Serial3.read());
                 updateSensors();
-                debugColorSense();
+                debugLineColors();
                 break;
+#endif
             case TRACK_LINE:
+#ifdef CONFIG_DEBUG
+                Serial.print("************* TRACK_LINE *****************");
+                debugLineColors();
+#endif
+                while (Serial3.available () > 0)
+                    serial.processIncomingByte(Serial3.read());
+                updateSensors();
                 motor.changeDirForward();
-                debugColorSense();
                 trackLine();
                 vTaskDelay(50/portTICK_PERIOD_MS);
-
                 if(lineTrackerRightRight <= 100 &&
-                        lineTrackerRightRight >= 0 &&
-                        inRange(lineTrackerRight, 0, 250) &&
-                        inRange(colorSenseRed, 20, 60) &&
-                        inRange(colorSenseGreen, 10, 50) &&
-                        inRange(colorSenseBlue, 10, 40)) {
+                        lineTrackerRightRight >= 5 &&
+                        inRange(lineTrackerRight, 5, 250) &&
+                        inRange(colorSenseRed, 5, 50) &&
+                        inRange(colorSenseGreen, 5, 50) &&
+                        inRange(colorSenseBlue, 5, 50)) {
                     state = TURN_RIGHT1;
                     motor.changeState(NOTHING);
+                    // For debugging
                     vTaskDelay(1000/portTICK_PERIOD_MS);;
                     break;
                 }
                 break;
             case ROTATE_RIGHT_90:
+#ifdef CONFIG_DEBUG
+                Serial.print("************* ROTATE_RIGHT_90 *****************");
+#endif
                 turnRight90();
 
                 break;
             case ROTATE_LEFT_90:
+#ifdef CONFIG_DEBUG
+                Serial.print("************* ROTATE_LEFT_90 *****************");
+#endif
                 turnLeft90();
                 break;
             case ERROR:
-                Serial.println("trash_can");
+#ifdef CONFIG_DEBUG
+                Serial.print("************* ERROR *****************");
+#endif
                 break;
             case TRASH_CAN:
+#ifdef CONFIG_DEBUG
+                Serial.print("************* TRASH_CAN *****************");
+#endif
                 nStepForward(2000);
                 motor.changeState(NOTHING);
 
@@ -164,19 +183,30 @@ Loop(void *pvParameters)
                 state = TRACK_LINE_1;
                 break;
             case TRACK_LINE_1:
+#ifdef CONFIG_DEBUG
+                Serial.print("************* TRACK_LINE_1 *****************");
+#endif
                 motor.changeDirForward();
                 trackLine();
                 vTaskDelay(150/portTICK_PERIOD_MS);
+                break;
 
             case PARKING_FIRST:
+#ifdef CONFIG_DEBUG
+                Serial.print("************* PARKING_FIRST *****************");
+#endif
                 rightParking();
                 state = ERROR;
                 break;
 
             case TURN_RIGHT1:
+#ifdef CONFIG_DEBUG
+                Serial.print("************* TURN_RIGHT1 *****************");
+#endif
                 nStepForward(4000);
                 vTaskDelay(10/portTICK_PERIOD_MS);
                 turnRight90();
+                nStepForward(2000);
                 motor.changeState(NOTHING);
                 state = TRACK_LINE;
                 break;
@@ -259,11 +289,19 @@ trackLine(){
 }
 
 inline void
-debugColorSense() {
+debugLineColors() {
+    Serial.print(" ");
+    Serial.print(lineTrackerRightRight);
+    Serial.print(" ");
+    Serial.print(lineTrackerRight);
+    Serial.print(" ");
+    Serial.print(lineTrackerLeft);
+    Serial.print(" ");
+    Serial.print(lineTrackerLeftLeft);
     Serial.print(" ");
     Serial.print(colorSenseRed);
     Serial.print(" ");
-    Serial.print(colorSenseGreen); 
+    Serial.print(colorSenseGreen);
     Serial.print(" ");
     Serial.println(colorSenseBlue);
 }
@@ -293,13 +331,68 @@ inRange (int value, int min, int max) {
 
 inline void
 updateSensors() {
-    lineTrackerRight = serial.get_R_sensor();
-    lineTrackerRightRight = serial.get_RR_sensor();;
-    lineTrackerLeft = serial.get_L_sensor();
-    lineTrackerLeftLeft = serial.get_LL_sensor();
-    colorSenseRed = serial.colorSenseGetRedColor();
-    colorSenseGreen = serial.colorSenseGetGreenColor();
-    colorSenseBlue = serial.colorSenseGetBlueColor();
+    if (same(serial.get_R_sensor(),
+                serial.get_RR_sensor(),
+                serial.get_L_sensor(),
+                serial.get_LL_sensor(),
+                serial.colorSenseGetRedColor(),
+                serial.colorSenseGetGreenColor(),
+                serial.colorSenseGetBlueColor())) {
+        lineTrackerRight = serial.get_R_sensor();
+        lineTrackerRightRight = serial.get_RR_sensor();;
+        lineTrackerLeft = serial.get_L_sensor();
+        lineTrackerLeftLeft = serial.get_LL_sensor();
+        colorSenseRed = serial.colorSenseGetRedColor();
+        colorSenseGreen = serial.colorSenseGetGreenColor();
+        colorSenseBlue = serial.colorSenseGetBlueColor();
+    }
+}
+
+inline bool
+same(int a, int b, int c, int d, int e, int f, int g) {
+    int counter = 0;
+    if (a == b)
+        ++counter;
+    if (a == f)
+        ++counter;
+    if (a == g)
+        ++counter;
+    if (b == c)
+        ++counter;
+    if (b == d)
+        ++counter;
+    if (b == e)
+        ++counter;
+    if (c == d)
+        ++counter;
+    if (d == e)
+        ++counter;
+    if (e == a)
+        ++counter;
+    if (e == c)
+        ++counter;
+    if (d == a)
+        ++counter;
+    if (c == e)
+        ++counter;
+    if (c == g)
+        ++counter;
+    if (c == f)
+        ++counter;
+    if (d == f)
+        ++counter;
+    if (d == g)
+        ++counter;
+    if (f == g)
+        ++counter;
+    if (e == g)
+        ++counter;
+    if (e == f)
+        ++counter;
+    if (counter >=3) {
+        return false;
+    }
+    return true;
 }
 void
 loop() {
