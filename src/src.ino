@@ -3,7 +3,6 @@
 #include "__Move__.h"
 #include "__Ultrasonic__.h"
 #include "__Serial__.h"
-#include "__LaneCounter__.h"
 #ifndef RTOS
 #define RTOS
 #include <Arduino_FreeRTOS.h>
@@ -23,6 +22,7 @@
 #define TRASH_CAN 4
 #define PARKING_FIRST 7
 #define TURN_RIGHT1 8
+#define TURN_LEFT1 9
 
 #define LED_BUILTIN 13
 #define rightSensorPin A1 // RightSesnor
@@ -48,7 +48,6 @@ __Move__ motor(X_STP,
         Y_DIR, Z_DIR,
         A_DIR,
         MOTOR_SPD);
-__LaneCounter__ laneCounter;
 
 void
 setup() {
@@ -77,7 +76,7 @@ int lineTrackerLeftLeft = 0;
 int colorSenseRed = 0;
 int colorSenseGreen = 0;
 int colorSenseBlue = 0;
-
+int turnRight90_cnt = 0;
 void
 Loop(void *pvParameters)
 {
@@ -107,6 +106,7 @@ Loop(void *pvParameters)
                 motor.changeDirForward();
                 trackLine();
                 vTaskDelay(50/portTICK_PERIOD_MS);
+
                 if(lineTrackerRightRight <= 100 &&
                         lineTrackerRightRight >= 5 &&
                         inRange(lineTrackerRight, 5, 250) &&
@@ -119,6 +119,20 @@ Loop(void *pvParameters)
                     // For debugging
                     /* vTaskDelay(1000/portTICK_PERIOD_MS);; */
                     break;
+                }
+                // if two right turns has passed, check to turn left
+                if (turnRight90_cnt == 2) {
+                    if(lineTrackerLeftLeft <= 100 &&
+                            lineTrackerLeftLeft >= 5 &&
+                            inRange(lineTrackerRight, 5, 250) &&
+                            inRange(lineTrackerLeft, 5, 250) &&
+                            inRange(colorSenseRed, 5, 50) &&
+                            inRange(colorSenseGreen, 5, 50) &&
+                            inRange(colorSenseBlue, 5, 50)) {
+                        state = TURN_LEFT1;
+                        motor.changeState(NOTHING);
+                        break;
+                    }
                 }
                 break;
             case ROTATE_RIGHT_90:
@@ -207,9 +221,18 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
                 Serial.print("************* TURN_RIGHT1 *****************");
 #endif
-                nStepForward(4000);
+                nStepForward(3000);
                 vTaskDelay(10/portTICK_PERIOD_MS);
                 turnRight90();
+                nStepForward(2000);
+                motor.changeState(NOTHING);
+                turnRight90_cnt++;
+                state = TRACK_LINE;
+                break;
+            case TURN_LEFT1:
+                nStepForward(3000);
+                vTaskDelay(10/portTICK_PERIOD_MS);
+                turnLeft90();
                 nStepForward(2000);
                 motor.changeState(NOTHING);
                 state = TRACK_LINE;
@@ -230,7 +253,7 @@ nStepForward(int steps) {
         vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
     }
 }
-
+ 
 inline
 void
 nStepBackward(int steps) {
@@ -258,7 +281,6 @@ turnLeft90() {
     while(!motor.n_step(STEPS_FOR_90_DEGREE)) {
         vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
     }
-    motor.changeState(NOTHING);
 }
 
 void
