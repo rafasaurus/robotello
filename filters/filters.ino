@@ -1,5 +1,6 @@
 #include "__ColorSense__.h"
 #include "__LineTracker__.h"
+#include "__LaneCounter__.h"
 
 char l_str[5]; // left
 char ll_str[5]; // leftleft sensor
@@ -31,10 +32,12 @@ double lineAlpha = 0.7;
 // Pins are defined in __ColorSense__.h
 __ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT);
 /* __ColorSense__ colorSense(S00, S11, S22, S33, COLORSENSE_OUT1); */
+__LaneCounter__ laneCounter;
 void setup() {
     Serial.begin(115200);
     pinMode(A0, INPUT);
 }
+
 
 void loop() {
     int l = analogRead(A1);
@@ -52,15 +55,22 @@ void loop() {
     previous_colorSense_Red = current_colorSense_Red;
     previous_colorSense_Green = current_colorSense_Green;
     previous_colorSense_Blue = current_colorSense_Blue;
-
-    send(l, L);
-    send(ll, LL);
-    send(r, R);
-    send(rr, RR);
-    send(current_colorSense_Red, COLORSENSE_RED);
-    send(current_colorSense_Green, COLORSENSE_GREEN);
-    send(current_colorSense_Blue, COLORSENSE_BLUE);
-    delay(50);
+    laneCounter.push(current_colorSense_Red, current_colorSense_Green, current_colorSense_Blue);
+    Serial.print(" ");
+    Serial.print(current_colorSense_Red);
+    Serial.print(" ");
+    Serial.print(current_colorSense_Green);
+    Serial.print(" ");
+    Serial.println(current_colorSense_Blue);
+    laneCounter.getStat();
+    /* send(l, L); */
+    /* send(ll, LL); */
+    /* send(r, R); */
+    /* send(rr, RR); */
+    /* send(current_colorSense_Red, COLORSENSE_RED); */
+    /* send(current_colorSense_Green, COLORSENSE_GREEN); */
+    /* send(current_colorSense_Blue, COLORSENSE_BLUE); */
+    delay(5000);
 }
 inline void
 send(int payload, int sensorId) {
