@@ -1,10 +1,11 @@
 #include "Queue.h"
+#define QUEUE_SIZE 20
 class __LaneCounter__ {
     class Sensor {
         public:
-            Sensor():queue(5) {}
+            Sensor():queue(QUEUE_SIZE) {}
             DataQueue<int> queue;
-            int queueList[5] = {0}; 
+            int queueList[QUEUE_SIZE] = {0}; 
             void push(int data) {
                 if (!queue.isFull()) {
                     queue.enqueue(data);
@@ -18,12 +19,19 @@ class __LaneCounter__ {
             int* getList() {
                 return queueList;
             }
+            int getMean() {
+                double mean = 0;
+                for (int i = 0; i < QUEUE_SIZE; i++) {
+                    mean += queueList[i];
+                }
+                return mean/QUEUE_SIZE;
+            }
             
     };
     private:
-        Sensor colorSenseRed;
-        Sensor colorSenseGreen;
-        Sensor colorSenseBlue;
+        Sensor cR;
+        Sensor cG;
+        Sensor cB;
         Sensor LL;
         Sensor L;
         Sensor R;
@@ -45,9 +53,9 @@ class __LaneCounter__ {
                 int redColor,
                 int greenColor,
                 int blueColor) {
-            colorSenseRed.push(redColor);
-            colorSenseBlue.push(blueColor);
-            colorSenseGreen.push(greenColor);
+            cR.push(redColor);
+            cB.push(blueColor);
+            cG.push(greenColor);
             LL.push(ll);
             L.push(l); 
             R.push(r);
@@ -59,28 +67,28 @@ class __LaneCounter__ {
             l_arr = L.getList();
             r_arr = R.getList();
             rr_arr = RR.getList();
-            cR_arr = colorSenseRed.getList();
-            cB_arr = colorSenseBlue.getList();
-            cG_arr = colorSenseGreen.getList();
+            cR_arr = cR.getList();
+            cB_arr = cB.getList();
+            cG_arr = cG.getList();
         }
         void log() {
-            getLists();
-            Serial.println("i*********************");
-            for (int i = 0; i < 5; ++i) {
-                Serial.print("ll:");
-                Serial.print(ll_arr[i]);
-                Serial.print(" l:");
-                Serial.print(l_arr[i]);
-                Serial.print(" r:");
-                Serial.print(r_arr[i]);
-                Serial.print(" rr:");
-                Serial.print(rr_arr[i]);
-                Serial.print(" cR:");
-                Serial.print(rr_arr[i]);
-                Serial.print(" cB:");
-                Serial.print(rr_arr[i]);
-                Serial.print(" cG:");
-                Serial.println(rr_arr[i]);
-            }
+            // getLists();
+            // Serial.println("i*********************");
+            // for (int i = 0; i < QUEUE_SIZE; ++i) {
+                Serial.print(" ");
+                Serial.print(cR.getMean());
+                Serial.print(" ");
+                Serial.print(cG.getMean());
+                Serial.print(" ");
+                Serial.print(cB.getMean());
+                Serial.print(" ");
+                Serial.print(LL.getMean());
+                Serial.print(" ");
+                Serial.print(L.getMean());
+                Serial.print(" ");
+                Serial.print(R.getMean());
+                Serial.print(" ");
+                Serial.println(RR.getMean());
+            // }
         }
 };
