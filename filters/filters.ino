@@ -55,13 +55,21 @@ void loop() {
     previous_colorSense_Red = current_colorSense_Red;
     previous_colorSense_Green = current_colorSense_Green;
     previous_colorSense_Blue = current_colorSense_Blue;
-    laneCounter.push(current_colorSense_Red, current_colorSense_Green, current_colorSense_Blue);
+    laneCounter.push(current_colorSense_Red,
+                        current_colorSense_Green,
+                        current_colorSense_Blue,
+                        current_lineTracker_LL,
+                        current_lineTracker_L,
+                        current_lineTracker_R,
+                        current_lineTracker_RR);
+    Serial.print(" -----------------  ");
+    Serial.print(current_lineTracker_L);
     Serial.print(" ");
-    Serial.print(current_colorSense_Red);
+    Serial.print(current_lineTracker_LL);
     Serial.print(" ");
-    Serial.print(current_colorSense_Green);
+    Serial.print(current_lineTracker_R);
     Serial.print(" ");
-    Serial.println(current_colorSense_Blue);
+    Serial.println(current_lineTracker_RR);
     laneCounter.getStat();
     /* send(l, L); */
     /* send(ll, LL); */
@@ -70,7 +78,7 @@ void loop() {
     /* send(current_colorSense_Red, COLORSENSE_RED); */
     /* send(current_colorSense_Green, COLORSENSE_GREEN); */
     /* send(current_colorSense_Blue, COLORSENSE_BLUE); */
-    delay(5000);
+    delay(2000);
 }
 inline void
 send(int payload, int sensorId) {
