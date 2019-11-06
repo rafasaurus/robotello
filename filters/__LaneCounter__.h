@@ -36,13 +36,13 @@ class __LaneCounter__ {
                 Serial.println(redQueue.dequeue());
             }
         }
-        void push(int redColor,
-                    int greenColor,
-                    int blueColor,
-                    int lineTrackerLeftLeft,
-                    int lineTrackerLeft,
-                    int lineTrackerRight,
-                    int lineTrackerRightRight) {
+        void push(int lineTrackerLeftLeft,
+                int lineTrackerLeft,
+                int lineTrackerRight,
+                int lineTrackerRightRight,
+                int redColor,
+                int greenColor,
+                int blueColor) {
             // push red
             if (!redQueue.isFull()) {
                 redQueue.enqueue(redColor);
@@ -67,9 +67,6 @@ class __LaneCounter__ {
                 blueQueue.dequeue();
                 blueQueue.enqueue(blueColor);
             }
-            redQueue.nextValue(redQueueList);
-            greenQueue.nextValue(greenQueueList);
-            blueQueue.nextValue(blueQueueList);
             //  push LeftLeft
             if (!lineTrackerLeftLeftQueue.isFull()) {
                 lineTrackerLeftLeftQueue.enqueue(lineTrackerLeftLeft);
@@ -102,6 +99,15 @@ class __LaneCounter__ {
                 lineTrackerRightRightQueue.dequeue();
                 lineTrackerRightRightQueue.enqueue(lineTrackerRightRight);
             }
+
+            redQueue.nextValue(redQueueList);
+            greenQueue.nextValue(greenQueueList);
+            blueQueue.nextValue(blueQueueList);
+
+            lineTrackerLeftLeftQueue.nextValue(lineTrackerLeftLeftQueueList);
+            lineTrackerLeftQueue.nextValue(lineTrackerLeftQueueList);
+            lineTrackerRightQueue.nextValue(lineTrackerRightQueueList);
+            lineTrackerRightRightQueue.nextValue(lineTrackerRightRightQueueList);
         }
         void getStat() {
             Serial.print("items in redQueue cnt:");
