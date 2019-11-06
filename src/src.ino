@@ -29,6 +29,7 @@
 #define leftSensorPin A0 // LeftSesnor
 #define INCLUDE_vTaskDelay 1
 #define STEPS_FOR_90_DEGREE 6400
+#define MOTOR_SPD 100
 
 float alpha = 0.5;
 void Loop(void *pvParameters);
@@ -46,7 +47,7 @@ __Move__ motor(X_STP,
         X_DIR,
         Y_DIR, Z_DIR,
         A_DIR,
-        150);
+        MOTOR_SPD);
 __LaneCounter__ laneCounter;
 
 void
@@ -101,8 +102,7 @@ Loop(void *pvParameters)
                 Serial.print("************* TRACK_LINE *****************");
                 debugLineColors();
 #endif
-                while (Serial3.available () > 0)
-                    serial.processIncomingByte(Serial3.read());
+                updateSerial();
                 updateSensors();
                 motor.changeDirForward();
                 trackLine();
@@ -110,13 +110,14 @@ Loop(void *pvParameters)
                 if(lineTrackerRightRight <= 100 &&
                         lineTrackerRightRight >= 5 &&
                         inRange(lineTrackerRight, 5, 250) &&
+                        inRange(lineTrackerLeft, 5, 250) &&
                         inRange(colorSenseRed, 5, 50) &&
                         inRange(colorSenseGreen, 5, 50) &&
                         inRange(colorSenseBlue, 5, 50)) {
                     state = TURN_RIGHT1;
                     motor.changeState(NOTHING);
                     // For debugging
-                    vTaskDelay(1000/portTICK_PERIOD_MS);;
+                    /* vTaskDelay(1000/portTICK_PERIOD_MS);; */
                     break;
                 }
                 break;
@@ -137,6 +138,9 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
                 Serial.print("************* ERROR *****************");
 #endif
+                updateSerial();
+                state = TRACK_LINE;
+                vTaskDelay(50/portTICK_PERIOD_MS);
                 break;
             case TRASH_CAN:
 #ifdef CONFIG_DEBUG
@@ -203,6 +207,8 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
                 Serial.print("************* TURN_RIGHT1 *****************");
 #endif
+                updateSerial();
+                updateSensors();
                 nStepForward(4000);
                 vTaskDelay(10/portTICK_PERIOD_MS);
                 turnRight90();
@@ -331,13 +337,13 @@ inRange (int value, int min, int max) {
 
 inline void
 updateSensors() {
-    if (same(serial.get_R_sensor(),
-                serial.get_RR_sensor(),
-                serial.get_L_sensor(),
-                serial.get_LL_sensor(),
-                serial.colorSenseGetRedColor(),
-                serial.colorSenseGetGreenColor(),
-                serial.colorSenseGetBlueColor())) {
+    /* if (same(serial.get_R_sensor(), */
+    /*             serial.get_RR_sensor(), */
+    /*             serial.get_L_sensor(), */
+    /*             serial.get_LL_sensor(), */
+    /*             serial.colorSenseGetRedColor(), */
+    /*             serial.colorSenseGetGreenColor(), */
+    /*             serial.colorSenseGetBlueColor())) { */
         lineTrackerRight = serial.get_R_sensor();
         lineTrackerRightRight = serial.get_RR_sensor();;
         lineTrackerLeft = serial.get_L_sensor();
@@ -345,7 +351,7 @@ updateSensors() {
         colorSenseRed = serial.colorSenseGetRedColor();
         colorSenseGreen = serial.colorSenseGetGreenColor();
         colorSenseBlue = serial.colorSenseGetBlueColor();
-    }
+    /* } */
 }
 
 inline bool
@@ -393,6 +399,11 @@ same(int a, int b, int c, int d, int e, int f, int g) {
         return false;
     }
     return true;
+}
+inline void
+updateSerial() {
+    while (Serial3.available () > 0)
+        serial.processIncomingByte(Serial3.read());
 }
 void
 loop() {
