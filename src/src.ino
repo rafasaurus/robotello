@@ -87,6 +87,8 @@ Loop(void *pvParameters)
     // Filter parameters
     while(1) {
         // State-Machine
+        updateSerial();
+        updateSensors();
         switch (state) {
 #ifdef CONFIG_DEBUG
             case CONFIG_DEBUG:
@@ -102,8 +104,6 @@ Loop(void *pvParameters)
                 Serial.print("************* TRACK_LINE *****************");
                 debugLineColors();
 #endif
-                updateSerial();
-                updateSensors();
                 motor.changeDirForward();
                 trackLine();
                 vTaskDelay(50/portTICK_PERIOD_MS);
@@ -207,8 +207,6 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
                 Serial.print("************* TURN_RIGHT1 *****************");
 #endif
-                updateSerial();
-                updateSensors();
                 nStepForward(4000);
                 vTaskDelay(10/portTICK_PERIOD_MS);
                 turnRight90();
@@ -223,6 +221,9 @@ Loop(void *pvParameters)
 inline
 void
 nStepForward(int steps) {
+    // TODO
+    // it's just for temporrary bug fix
+    updateSerial();
     motor.changeDirForward();
     motor.changeState(ONE_STEP); 
     while(!motor.n_step(steps)) {
