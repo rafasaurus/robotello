@@ -73,7 +73,7 @@ void loop() {
     laneCounter.sendPayload();
     // * Don't forget to add delay
     // * cuz it won't send the payload correctly
-    delay(20);
+    delay(10);
 }
 // քառակուսային միջին
 int mean(int a, int b, int c) {

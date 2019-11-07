@@ -31,9 +31,6 @@ class __LaneCounter__ {
                 }
                 queue.nextValue(queueList);
             }
-            int* getList() {
-                return queueList;
-            }
             int getMean() {
                 double mean = 0;
                 for (int i = 0; i < QUEUE_SIZE; i++) {
@@ -52,14 +49,6 @@ class __LaneCounter__ {
     Sensor L_;
     Sensor R_;
     Sensor RR_;
-    int* ll_arr;
-    int* l_arr;
-    int* r_arr;
-    int* rr_arr;
-    int* cR_arr;
-    int* cB_arr;
-    int* cG_arr;
-    int* cS1_mean_arr;
     public:
 
     __LaneCounter__() {};
@@ -93,6 +82,6 @@ class __LaneCounter__ {
 
         send(cS1_mean_.getMean(), COLORSENSE1_MEAN);
         // Debug
-        Serial.println();
+        // Serial.println();
     }
 };
