@@ -53,6 +53,17 @@
 
 #define CB_MIN 5
 #define CB_MAX 50
+
+// Define colorSensor1 margins
+#define CR1_MIN 5
+#define CR1_MAX 50
+
+#define CG1_MIN 5
+#define CG1_MAX 50
+
+#define CB1_MIN 5
+#define CB1_MAX 50
+
 float alpha = 0.5;
 void Loop(void *pvParameters);
 __Servo__ *arm;
@@ -98,6 +109,7 @@ int lineTrackerLeftLeft = 0;
 int colorSenseRed = 0;
 int colorSenseGreen = 0;
 int colorSenseBlue = 0;
+int colorSense1_mean = 0;
 
 void
 Loop(void *pvParameters)
@@ -110,12 +122,11 @@ Loop(void *pvParameters)
         // State-Machine
         updateSerial();
         updateSensors();
+        vTaskDelay(50/portTICK_PERIOD_MS);
         switch (state) {
 #ifdef CONFIG_DEBUG
             case DEBUG:
                 Serial.print("************* DEBUG *****************");
-                updateSerial();
-                updateSensors();
                 debugLineColors();
                 break;
 #endif
@@ -126,9 +137,8 @@ Loop(void *pvParameters)
 #endif
                 motor.changeDirForward();
                 trackLine();
-                vTaskDelay(50/portTICK_PERIOD_MS);
 
-                if(inRange(lineTrackerRightRight, RR_MIN, RR_MAX);
+                if(inRange(lineTrackerRightRight, RR_MIN, RR_MAX) &&
                         inRange(lineTrackerRight, R_MIN, RR_MAX) &&
                         inRange(lineTrackerLeft, L_MIN, L_MAX) &&
                         inRange(colorSenseRed, CR_MIN, CR_MAX) &&
@@ -147,7 +157,6 @@ Loop(void *pvParameters)
 #endif
                 updateSerial();
                 state = TRACK_LINE;
-                vTaskDelay(50/portTICK_PERIOD_MS);
                 break;
             case TRASH_CAN:
 #ifdef CONFIG_DEBUG
@@ -205,8 +214,8 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
                 Serial.print("************* TURN_RIGHT1 *****************");
 #endif
+                debugLineColors();
                 nStepForward(3000);
-                vTaskDelay(10/portTICK_PERIOD_MS);
                 turnRight90();
                 nStepForward(2000);
                 motor.changeState(NOTHING);
@@ -218,7 +227,6 @@ Loop(void *pvParameters)
 #endif
                 motor.changeDirForward();
                 trackLine();
-                vTaskDelay(150/portTICK_PERIOD_MS);
                 break;
         }
     }
@@ -311,12 +319,17 @@ debugLineColors() {
     Serial.print(lineTrackerLeft);
     Serial.print(" ");
     Serial.print(lineTrackerLeftLeft);
+
     Serial.print(" ");
     Serial.print(colorSenseRed);
     Serial.print(" ");
     Serial.print(colorSenseGreen);
     Serial.print(" ");
-    Serial.println(colorSenseBlue);
+    Serial.print(colorSenseBlue);
+
+    Serial.print(" ");
+    Serial.print(colorSense1_mean);
+    Serial.println(" ");
 }
 
 void
@@ -345,13 +358,13 @@ inRange (int value, int min, int max) {
 inline void
 updateSensors() {
     // get the payload from filters/__LaneCounter__.h
-    /* if (same(serial.get_R_sensor(), */
-    /*             serial.get_RR_sensor(), */
-    /*             serial.get_L_sensor(), */
-    /*             serial.get_LL_sensor(), */
-    /*             serial.colorSenseGetRedColor(), */
-    /*             serial.colorSenseGetGreenColor(), */
-    /*             serial.colorSenseGetBlueColor())) { */
+    if (same(serial.get_R_sensor(),
+                serial.get_RR_sensor(),
+                serial.get_L_sensor(),
+                serial.get_LL_sensor(),
+                serial.colorSenseGetRedColor(),
+                serial.colorSenseGetGreenColor(),
+                serial.colorSenseGetBlueColor())) {
         lineTrackerRight = serial.get_R_sensor();
         lineTrackerRightRight = serial.get_RR_sensor();;
         lineTrackerLeft = serial.get_L_sensor();
@@ -360,7 +373,9 @@ updateSensors() {
         colorSenseRed = serial.colorSenseGetRedColor();
         colorSenseGreen = serial.colorSenseGetGreenColor();
         colorSenseBlue = serial.colorSenseGetBlueColor();
-    /* } */
+
+        colorSense1_mean = serial.colorSense1GetMean();
+    }
 }
 
 inline bool

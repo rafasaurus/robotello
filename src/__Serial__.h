@@ -10,6 +10,7 @@
 #define COLORSENSE_RED 4
 #define COLORSENSE_GREEN 5
 #define COLORSENSE_BLUE 6
+#define COLORSENSE1_MEAN 7
 #define MAX_INPUT 32
 
 class __Serial__ {
@@ -22,6 +23,7 @@ class __Serial__ {
         int colorSenseRed_;
         int colorSenseGreen_;
         int colorSenseBlue_;
+        int colorSense1Mean_;
     public:
         String getMessage() {
             if (Serial.available()) {
@@ -29,6 +31,7 @@ class __Serial__ {
                 return(this->str);
             }
         }
+
         int get_L_sensor() {
             return this->L_;
         }
@@ -50,6 +53,10 @@ class __Serial__ {
         int colorSenseGetBlueColor() {
             return this->colorSenseBlue_;
         }
+        int colorSense1GetMean() {
+            return this->colorSense1Mean_;
+        }
+
         void processIncomingByte (const byte inByte)
         {
             static char input_line [MAX_INPUT];
@@ -89,18 +96,28 @@ class __Serial__ {
                     switch(sensorId) {
                         case L:
                             this->L_ = position;
+                            break;
                         case LL:
                             this->LL_ = position;
+                            break;
                         case R:
                             this->R_ = position;
+                            break;
                         case RR:
                             this->RR_ = position;
+                            break;
                         case COLORSENSE_RED:
                             this->colorSenseRed_ = position;
+                            break;
                         case COLORSENSE_GREEN:
                             this->colorSenseGreen_ = position;
+                            break;
                         case COLORSENSE_BLUE:
                             this->colorSenseBlue_ = position;
+                            break;
+                        case COLORSENSE1_MEAN:
+                            this->colorSense1Mean_ = position;
+                            break;
                     }
                 }
                 // Find the next sensorData in input string
