@@ -28,9 +28,31 @@
 #define rightSensorPin A1 // RightSesnor
 #define leftSensorPin A0 // LeftSesnor
 #define INCLUDE_vTaskDelay 1
-#define STEPS_FOR_90_DEGREE 6400
+#define STEPS_FOR_90_DEGREE 6000
 #define MOTOR_SPD 100
 
+// Define lineTracker sensor margins
+#define RR_MIN 10
+#define RR_MAX 300
+
+#define R_MIN 10
+#define R_MAX 500
+
+#define L_MIN 10
+#define L_MAX 500
+
+#define LL_MIN 10
+#define LL_MAX 300
+
+// Define colorSensor margins
+#define CR_MIN 5
+#define CR_MAX 50
+
+#define CG_MIN 5
+#define CG_MAX 50
+
+#define CB_MIN 5
+#define CB_MAX 50
 float alpha = 0.5;
 void Loop(void *pvParameters);
 __Servo__ *arm;
@@ -82,7 +104,7 @@ Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = DEBUG;
+    int state = TRACK_LINE;
     // Filter parameters
     while(1) {
         // State-Machine
@@ -105,13 +127,13 @@ Loop(void *pvParameters)
                 motor.changeDirForward();
                 trackLine();
                 vTaskDelay(50/portTICK_PERIOD_MS);
-                if(lineTrackerRightRight <= 100 &&
-                        lineTrackerRightRight >= 5 &&
-                        inRange(lineTrackerRight, 5, 250) &&
-                        inRange(lineTrackerLeft, 5, 250) &&
-                        inRange(colorSenseRed, 5, 50) &&
-                        inRange(colorSenseGreen, 5, 50) &&
-                        inRange(colorSenseBlue, 5, 50)) {
+
+                if(inRange(lineTrackerRightRight, RR_MIN, RR_MAX);
+                        inRange(lineTrackerRight, R_MIN, RR_MAX) &&
+                        inRange(lineTrackerLeft, L_MIN, L_MAX) &&
+                        inRange(colorSenseRed, CR_MIN, CR_MAX) &&
+                        inRange(colorSenseGreen, CG_MIN, CG_MAX) &&
+                        inRange(colorSenseBlue, CB_MIN, CB_MAX)) {
                     state = TURN_RIGHT1;
                     motor.changeState(NOTHING);
                     // For debugging
@@ -183,7 +205,7 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
                 Serial.print("************* TURN_RIGHT1 *****************");
 #endif
-                nStepForward(4000);
+                nStepForward(3000);
                 vTaskDelay(10/portTICK_PERIOD_MS);
                 turnRight90();
                 nStepForward(2000);

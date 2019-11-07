@@ -1,5 +1,5 @@
 #include "Queue.h"
-#define QUEUE_SIZE 10
+#define QUEUE_SIZE 7
 #include "__Send__.h"
 
 // SensorIds
