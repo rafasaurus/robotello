@@ -1,6 +1,6 @@
 #include "__ColorSense__.h"
 #include "__LineTracker__.h"
-#include "__LaneCounter__.h"
+#include "__Sensors__.h"
 #include "__Send__.h"
 
 int previous_colorSense_Red = 0;
@@ -22,7 +22,7 @@ double lineAlpha = 0.7;
 // Pins are defined in __ColorSense__.h
 __ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT);
 __ColorSense__ colorSense1(S00, S11, S22, S33, COLORSENSE_OUT1);
-__LaneCounter__ laneCounter;
+__Sensors__ sensors;
 void setup() {
     Serial.begin(115200);
     pinMode(A0, INPUT);
@@ -60,7 +60,7 @@ void loop() {
     previous_colorSense1_Green = current_colorSense1_Green;
     previous_colorSense1_Blue = current_colorSense1_Blue;
 
-    laneCounter.push(
+    sensors.push(
             current_lineTracker_LL,
             current_lineTracker_L,
             current_lineTracker_R,
@@ -69,8 +69,8 @@ void loop() {
             current_colorSense_Blue,
             current_colorSense_Red,
             mean(current_colorSense1_Red, current_colorSense1_Blue, current_colorSense1_Green));
-    /* laneCounter.log(); */
-    laneCounter.sendPayload();
+    /*  sensors.log(); */
+    sensors.sendPayload();
     // * Don't forget to add delay
     // * cuz it won't send the payload correctly
     delay(10);

@@ -14,7 +14,7 @@
 
 #define COLORSENSE1_MEAN 7
 
-class __LaneCounter__ {
+class __Sensors__ {
     class Sensor {
         public:
             // Init emptry queue and constructor
@@ -51,7 +51,7 @@ class __LaneCounter__ {
     Sensor RR_;
     public:
 
-    __LaneCounter__() {};
+    __Sensors__() {};
     void push(int ll,
             int l,
             int r,
