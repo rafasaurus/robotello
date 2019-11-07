@@ -31,6 +31,7 @@
 #define STEPS_FOR_90_DEGREE 6000
 #define MOTOR_SPD 100
 
+#define FIRE_PIN 6
 // Define lineTracker sensor margins
 #define RR_MIN 10
 #define RR_MAX 300
@@ -72,6 +73,7 @@ __Servo__ *armOne;
 __Servo__ *armRotate;
 __Serial__ serial;
 
+Servo ESC;
 __Ultrasonic__ ultrasonic;
 __Move__ motor(X_STP,
         Y_STP,
@@ -100,6 +102,8 @@ setup() {
     motor.startTask();
     Serial.begin(115200);
     Serial3.begin(115200);
+    ESC.attach(FIRE_PIN); 
+    ESC.writeMicroseconds(1000);
 }
 
 int lineTrackerRight = 0;
@@ -116,17 +120,20 @@ Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = TRACK_LINE;
+    int state = DEBUG;
     // Filter parameters
+    ESC.writeMicroseconds(1000);
+    vTaskDelay(4000/portTICK_PERIOD_MS);
     while(1) {
-        // State-Machine
         updateSerial();
         updateSensors();
         vTaskDelay(50/portTICK_PERIOD_MS);
+        // State-Machine
         switch (state) {
 #ifdef CONFIG_DEBUG
             case DEBUG:
                 Serial.print("************* DEBUG *****************");
+                motor.changeState(NOTHING);
                 debugLineColors();
                 break;
 #endif
@@ -429,6 +436,14 @@ inline void
 updateSerial() {
     while (Serial3.available () > 0)
         serial.processIncomingByte(Serial3.read());
+}
+inline void
+estinguishFire() { // init
+    ESC.writeMicroseconds(1000);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    ESC.writeMicroseconds(1300);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    ESC.writeMicroseconds(1000);
 }
 void
 loop() {
