@@ -138,7 +138,7 @@ Loop(void *pvParameters)
                 motor.changeDirForward();
                 trackLine();
 
-                if(inRange(lineTrackerRightRight, RR_MIN, RR_MAX);
+                if(inRange(lineTrackerRightRight, RR_MIN, RR_MAX) &&
                         inRange(lineTrackerRight, R_MIN, RR_MAX) &&
                         inRange(lineTrackerLeft, L_MIN, L_MAX) &&
                         inRange(colorSenseRed, CR_MIN, CR_MAX) &&
@@ -214,6 +214,7 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
                 Serial.print("************* TURN_RIGHT1 *****************");
 #endif
+                debugLineColors();
                 nStepForward(3000);
                 turnRight90();
                 nStepForward(2000);

@@ -96,20 +96,28 @@ class __Serial__ {
                     switch(sensorId) {
                         case L:
                             this->L_ = position;
+                            break;
                         case LL:
                             this->LL_ = position;
+                            break;
                         case R:
                             this->R_ = position;
+                            break;
                         case RR:
                             this->RR_ = position;
+                            break;
                         case COLORSENSE_RED:
                             this->colorSenseRed_ = position;
+                            break;
                         case COLORSENSE_GREEN:
                             this->colorSenseGreen_ = position;
+                            break;
                         case COLORSENSE_BLUE:
                             this->colorSenseBlue_ = position;
+                            break;
                         case COLORSENSE1_MEAN:
                             this->colorSense1Mean_ = position;
+                            break;
                     }
                 }
                 // Find the next sensorData in input string
