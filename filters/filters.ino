@@ -1,29 +1,7 @@
 #include "__ColorSense__.h"
 #include "__LineTracker__.h"
 #include "__LaneCounter__.h"
-
-char l_str[5]; // left
-char ll_str[5]; // leftleft sensor
-char r_str[5]; // right
-char rr_str[5]; //rightright sensor
-char payload_str[5];
-
-// sensorIds
-#define R 0
-#define L 1
-#define RR 2
-#define LL 3
-#define COLORSENSE_RED 4
-#define COLORSENSE_GREEN 5
-#define COLORSENSE_BLUE 6
-// meanSensorIds
-#define R 7
-#define L 8
-#define RR 9
-#define LL 10
-#define COLORSENSE_RED 11
-#define COLORSENSE_GREEN 12
-#define COLORSENSE_BLUE 13
+#include "__Send__.h"
 
 int previous_colorSense_Red = 0;
 int previous_colorSense_Green = 0;
@@ -77,21 +55,15 @@ void loop() {
             current_colorSense_Green,
             current_colorSense_Blue,
             current_colorSense_Red);
-    laneCounter.log();
-    /* send(l, L); */
-    /* send(ll, LL); */
-    /* send(r, R); */
-    /* send(rr, RR); */
-    /* send(current_colorSense_Red, COLORSENSE_RED); */
-    /* send(current_colorSense_Green, COLORSENSE_GREEN); */
-    /* send(current_colorSense_Blue, COLORSENSE_BLUE); */
+    /* laneCounter.log(); */
+    laneCounter.sendPayload();
+    /* send(l, L_id); */
+    /* send(ll, LL_id); */
+    /* send(r, R_id); */
+    /* send(rr, RR_id); */
+    /* send(current_colorSense_Red, COLORSENSE_RED_id); */
+    /* send(current_colorSense_Green, COLORSENSE_GREEN_id); */
+    /* send(current_colorSense_Blue, COLORSENSE_BLUE_id); */
+
     delay(1);
-}
-inline void
-send(int payload, int sensorId) {
-    itoa(payload, payload_str, 10);
-    Serial.print(sensorId);
-    Serial.print(":");
-    Serial.print(payload_str);
-    Serial.print('&');
 }

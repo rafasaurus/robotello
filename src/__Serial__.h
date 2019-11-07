@@ -1,6 +1,8 @@
 #ifndef __serial__
 #define __serial__
 
+// Payload id and Sensor id (from src/__Serial__.h) should match
+// PayloadIds
 #define R 0
 #define L 1
 #define RR 2
@@ -85,10 +87,10 @@ class __Serial__ {
                     int position = atoi(separator);
                     if (sensorId == 0) {}
                     switch(sensorId) {
-                        case L:
-                            this->L_ = position;
                         case LL:
                             this->LL_ = position;
+                        case L:
+                            this->L_ = position;
                         case R:
                             this->R_ = position;
                         case RR:

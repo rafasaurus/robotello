@@ -3,7 +3,6 @@
 #include "__Move__.h"
 #include "__Ultrasonic__.h"
 #include "__Serial__.h"
-#include "__LaneCounter__.h"
 #ifndef RTOS
 #define RTOS
 #include <Arduino_FreeRTOS.h>
@@ -14,6 +13,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#define DEBUG -2
 #define CONFIG_DEBUG -1
 #define ERROR 0
 #define TRACK_LINE 1
@@ -48,7 +48,6 @@ __Move__ motor(X_STP,
         Y_DIR, Z_DIR,
         A_DIR,
         MOTOR_SPD);
-__LaneCounter__ laneCounter;
 
 void
 setup() {
@@ -83,7 +82,7 @@ Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = TRACK_LINE;
+    int state = DEBUG;
     // Filter parameters
     while(1) {
         // State-Machine
@@ -91,7 +90,7 @@ Loop(void *pvParameters)
         updateSensors();
         switch (state) {
 #ifdef CONFIG_DEBUG
-            case CONFIG_DEBUG:
+            case DEBUG:
                 Serial.print("************* DEBUG *****************");
                 while (Serial3.available () > 0)
                     serial.processIncomingByte(Serial3.read());
@@ -338,6 +337,7 @@ inRange (int value, int min, int max) {
 
 inline void
 updateSensors() {
+    // get the payload from filters/__LaneCounter__.h
     /* if (same(serial.get_R_sensor(), */
     /*             serial.get_RR_sensor(), */
     /*             serial.get_L_sensor(), */
@@ -349,6 +349,7 @@ updateSensors() {
         lineTrackerRightRight = serial.get_RR_sensor();;
         lineTrackerLeft = serial.get_L_sensor();
         lineTrackerLeftLeft = serial.get_LL_sensor();
+
         colorSenseRed = serial.colorSenseGetRedColor();
         colorSenseGreen = serial.colorSenseGetGreenColor();
         colorSenseBlue = serial.colorSenseGetBlueColor();
@@ -401,6 +402,7 @@ same(int a, int b, int c, int d, int e, int f, int g) {
     }
     return true;
 }
+
 inline void
 updateSerial() {
     while (Serial3.available () > 0)
