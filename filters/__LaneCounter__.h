@@ -82,6 +82,6 @@ class __LaneCounter__ {
 
         send(cS1_mean_.getMean(), COLORSENSE1_MEAN);
         // Debug
-        // Serial.println();
+        Serial.println();
     }
 };

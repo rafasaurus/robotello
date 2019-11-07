@@ -116,18 +116,17 @@ Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = DEBUG;
+    int state = TRACK_LINE;
     // Filter parameters
     while(1) {
         // State-Machine
         updateSerial();
         updateSensors();
+        vTaskDelay(50/portTICK_PERIOD_MS);
         switch (state) {
 #ifdef CONFIG_DEBUG
             case DEBUG:
                 Serial.print("************* DEBUG *****************");
-                updateSerial();
-                updateSensors();
                 debugLineColors();
                 break;
 #endif
@@ -138,7 +137,6 @@ Loop(void *pvParameters)
 #endif
                 motor.changeDirForward();
                 trackLine();
-                vTaskDelay(50/portTICK_PERIOD_MS);
 
                 if(inRange(lineTrackerRightRight, RR_MIN, RR_MAX);
                         inRange(lineTrackerRight, R_MIN, RR_MAX) &&
@@ -159,7 +157,6 @@ Loop(void *pvParameters)
 #endif
                 updateSerial();
                 state = TRACK_LINE;
-                vTaskDelay(50/portTICK_PERIOD_MS);
                 break;
             case TRASH_CAN:
 #ifdef CONFIG_DEBUG
@@ -218,7 +215,6 @@ Loop(void *pvParameters)
                 Serial.print("************* TURN_RIGHT1 *****************");
 #endif
                 nStepForward(3000);
-                vTaskDelay(10/portTICK_PERIOD_MS);
                 turnRight90();
                 nStepForward(2000);
                 motor.changeState(NOTHING);
@@ -230,7 +226,6 @@ Loop(void *pvParameters)
 #endif
                 motor.changeDirForward();
                 trackLine();
-                vTaskDelay(150/portTICK_PERIOD_MS);
                 break;
         }
     }
