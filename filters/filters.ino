@@ -68,9 +68,7 @@ void loop() {
             current_colorSense_Green,
             current_colorSense_Blue,
             current_colorSense_Red,
-            current_colorSense1_Green,
-            current_colorSense1_Blue,
-            current_colorSense1_Red);
+            mean(current_colorSense1_Red, current_colorSense1_Blue, current_colorSense1_Green));
     /* laneCounter.log(); */
     laneCounter.sendPayload();
     // * Don't forget to add delay
@@ -78,10 +76,6 @@ void loop() {
     delay(20);
 }
 // քառակուսային միջին
-int squaredMean(int a, int b, int c) {
-    return sqrt(sqr(a)+sqr(b)+sqr(c));
-}
-inline int
-sqr(int number) {
-    return number*number;
+int mean(int a, int b, int c) {
+    return (a+b+c);
 }

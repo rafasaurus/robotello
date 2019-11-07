@@ -109,9 +109,7 @@ int lineTrackerLeftLeft = 0;
 int colorSenseRed = 0;
 int colorSenseGreen = 0;
 int colorSenseBlue = 0;
-int colorSense1Red = 0;
-int colorSense1Green = 0;
-int colorSense1Blue = 0;
+int colorSense1_mean = 0;
 
 void
 Loop(void *pvParameters)
@@ -334,11 +332,8 @@ debugLineColors() {
     Serial.print(colorSenseBlue);
 
     Serial.print(" ");
-    Serial.print(colorSense1Red);
-    Serial.print(" ");
-    Serial.print(colorSense1Green);
-    Serial.print(" ");
-    Serial.println(colorSense1Blue);
+    Serial.print(colorSense1_mean);
+    Serial.println(" ");
 }
 
 void
@@ -383,9 +378,7 @@ updateSensors() {
         colorSenseGreen = serial.colorSenseGetGreenColor();
         colorSenseBlue = serial.colorSenseGetBlueColor();
 
-        colorSense1Red = serial.colorSense1GetRedColor();
-        colorSense1Green = serial.colorSense1GetGreenColor();
-        colorSense1Blue = serial.colorSense1GetBlueColor();
+        colorSense1_mean = serial.colorSense1GetMean();
     }
 }
 
