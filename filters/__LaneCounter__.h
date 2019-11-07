@@ -14,6 +14,7 @@
 class __LaneCounter__ {
     class Sensor {
         public:
+            // Init emptry queue and constructor
             Sensor():queue(QUEUE_SIZE) {}
             DataQueue<int> queue;
             int queueList[QUEUE_SIZE] = {0}; 
@@ -55,7 +56,7 @@ class __LaneCounter__ {
     int* cB_arr;
     int* cG_arr;
     public:
-    // init emptry lists and constructors
+
     __LaneCounter__() {};
     void push(int ll,
             int l,
@@ -72,18 +73,7 @@ class __LaneCounter__ {
         cB_.push_(blueColor);
         cG_.push_(greenColor);
     }
-
-    // void getLists() {
-    //     ll_arr = LL_.getList();
-    //     l_arr = L_.getList();
-    //     r_arr = R_.getList();
-    //     rr_arr = RR_.getList();
-    //     cR_arr = cR_.getList();
-    //     cB_arr = cB_.getList();
-    //     cG_arr = cG_.getList();
-    // }
     void sendPayload() {
-        // getLists();
         send(R_.getMean(), R_id);
         send(L_.getMean(), L_id);
         send(RR_.getMean(), RR_id);
@@ -92,27 +82,6 @@ class __LaneCounter__ {
         send(cR_.getMean(), COLORSENSE_RED_id);
         send(cG_.getMean(), COLORSENSE_GREEN_id);
         send(cB_.getMean(), COLORSENSE_BLUE_id);
-        Serial.println();
+        // Serial.println();
     }
-    inline
-        void log() {
-            // getLists();
-            Serial.println("i*********************");
-            for (int i = 0; i < QUEUE_SIZE; ++i) {
-                Serial.print(" ");
-                Serial.print(cR_.getMean());
-                Serial.print(" ");
-                Serial.print(cG_.getMean());
-                Serial.print(" ");
-                Serial.print(cB_.getMean());
-                Serial.print(" ");
-                Serial.print(LL_.getMean());
-                Serial.print(" ");
-                Serial.print(L_.getMean());
-                Serial.print(" ");
-                Serial.print(R_.getMean());
-                Serial.print(" ");
-                Serial.println(RR_.getMean());
-            }
-        }
 };

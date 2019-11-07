@@ -57,13 +57,7 @@ void loop() {
             current_colorSense_Red);
     /* laneCounter.log(); */
     laneCounter.sendPayload();
-    /* send(l, L_id); */
-    /* send(ll, LL_id); */
-    /* send(r, R_id); */
-    /* send(rr, RR_id); */
-    /* send(current_colorSense_Red, COLORSENSE_RED_id); */
-    /* send(current_colorSense_Green, COLORSENSE_GREEN_id); */
-    /* send(current_colorSense_Blue, COLORSENSE_BLUE_id); */
-
-    delay(1);
+    // * Don't forget to add delay
+    // * cuz it won't send the payload correctly
+    delay(50);
 }
