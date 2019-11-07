@@ -32,6 +32,7 @@
 #define MOTOR_SPD 100
 
 #define FIRE_PIN 6
+bool fireSafety = true;
 // Define lineTracker sensor margins
 #define RR_MIN 10
 #define RR_MAX 300
@@ -439,11 +440,13 @@ updateSerial() {
 }
 inline void
 estinguishFire() { // init
+    fireSafety = false;
     ESC.writeMicroseconds(1000);
     vTaskDelay(2000/portTICK_PERIOD_MS);
     ESC.writeMicroseconds(1300);
     vTaskDelay(2000/portTICK_PERIOD_MS);
     ESC.writeMicroseconds(1000);
+    fireSafety = true;
 }
 void
 loop() {
