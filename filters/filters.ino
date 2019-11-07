@@ -59,5 +59,5 @@ void loop() {
     laneCounter.sendPayload();
     // * Don't forget to add delay
     // * cuz it won't send the payload correctly
-    delay(50);
+    delay(100);
 }

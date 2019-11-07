@@ -74,14 +74,16 @@ class __LaneCounter__ {
         cG_.push_(greenColor);
     }
     void sendPayload() {
-        send(R_.getMean(), R_id);
+        // lineTrackers payload
         send(L_.getMean(), L_id);
-        send(RR_.getMean(), RR_id);
         send(LL_.getMean(), LL_id);
-
+        send(R_.getMean(), R_id);
+        send(RR_.getMean(), RR_id);
+        // colorSensor payload
         send(cR_.getMean(), COLORSENSE_RED_id);
         send(cG_.getMean(), COLORSENSE_GREEN_id);
         send(cB_.getMean(), COLORSENSE_BLUE_id);
+        // Debug
         // Serial.println();
     }
 };

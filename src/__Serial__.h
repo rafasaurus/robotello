@@ -87,10 +87,10 @@ class __Serial__ {
                     int position = atoi(separator);
                     if (sensorId == 0) {}
                     switch(sensorId) {
-                        case LL:
-                            this->LL_ = position;
                         case L:
                             this->L_ = position;
+                        case LL:
+                            this->LL_ = position;
                         case R:
                             this->R_ = position;
                         case RR:

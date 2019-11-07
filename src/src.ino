@@ -92,8 +92,7 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
             case DEBUG:
                 Serial.print("************* DEBUG *****************");
-                while (Serial3.available () > 0)
-                    serial.processIncomingByte(Serial3.read());
+                updateSerial();
                 updateSensors();
                 debugLineColors();
                 break;
@@ -119,19 +118,6 @@ Loop(void *pvParameters)
                     /* vTaskDelay(1000/portTICK_PERIOD_MS);; */
                     break;
                 }
-                break;
-            case ROTATE_RIGHT_90:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* ROTATE_RIGHT_90 *****************");
-#endif
-                turnRight90();
-
-                break;
-            case ROTATE_LEFT_90:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* ROTATE_LEFT_90 *****************");
-#endif
-                turnLeft90();
                 break;
             case ERROR:
 #ifdef CONFIG_DEBUG
@@ -185,15 +171,6 @@ Loop(void *pvParameters)
 
                 state = TRACK_LINE_1;
                 break;
-            case TRACK_LINE_1:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* TRACK_LINE_1 *****************");
-#endif
-                motor.changeDirForward();
-                trackLine();
-                vTaskDelay(150/portTICK_PERIOD_MS);
-                break;
-
             case PARKING_FIRST:
 #ifdef CONFIG_DEBUG
                 Serial.print("************* PARKING_FIRST *****************");
@@ -212,6 +189,14 @@ Loop(void *pvParameters)
                 nStepForward(2000);
                 motor.changeState(NOTHING);
                 state = TRACK_LINE;
+                break;
+            case TRACK_LINE_1:
+#ifdef CONFIG_DEBUG
+                Serial.print("************* TRACK_LINE_1 *****************");
+#endif
+                motor.changeDirForward();
+                trackLine();
+                vTaskDelay(150/portTICK_PERIOD_MS);
                 break;
         }
     }
