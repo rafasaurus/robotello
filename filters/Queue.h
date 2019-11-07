@@ -83,10 +83,17 @@ public:
 
     T nextValue(T* arr) {
        uint8_t index = 0;
-       Node* current;
        for (Node* node = _head; node != NULL; node = node->next) {
            arr[index++] = node->item;
        }
+    }
+
+    T getMean() {
+       double mean = 0;
+       for (Node* node = _head; node != NULL; node = node->next) {
+           mean += node->item;
+       }
+       return mean/this->_items_cnt;
     }
 	/*
 		Push an item to the queue.

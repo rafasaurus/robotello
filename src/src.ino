@@ -29,7 +29,7 @@
 #define leftSensorPin A0 // LeftSesnor
 #define INCLUDE_vTaskDelay 1
 #define STEPS_FOR_90_DEGREE 6000
-#define MOTOR_SPD 100
+#define MOTOR_SPD 130
 
 #define FIRE_PIN 6
 bool fireSafety = true;
@@ -115,16 +115,16 @@ int colorSenseRed = 0;
 int colorSenseGreen = 0;
 int colorSenseBlue = 0;
 int colorSense1_mean = 0;
-
+bool listen = 1;
 void
 Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = DEBUG;
+    int state = TRACK_LINE;
     // Filter parameters
     ESC.writeMicroseconds(1000);
-    vTaskDelay(4000/portTICK_PERIOD_MS);
+    /* vTaskDelay(4000/portTICK_PERIOD_MS); */
     while(1) {
         updateSerial();
         updateSensors();
@@ -146,7 +146,11 @@ Loop(void *pvParameters)
                 motor.changeDirForward();
                 trackLine();
 
-                if(inRange(lineTrackerRightRight, RR_MIN, RR_MAX) &&
+                if (serial.getLaneCnt() > 1 && listen) {
+                    state = TRASH_CAN;
+                    listen = false;
+                }
+                if (inRange(lineTrackerRightRight, RR_MIN, RR_MAX) &&
                         inRange(lineTrackerRight, R_MIN, RR_MAX) &&
                         inRange(lineTrackerLeft, L_MIN, L_MAX) &&
                         inRange(colorSenseRed, CR_MIN, CR_MAX) &&
@@ -170,7 +174,7 @@ Loop(void *pvParameters)
 #ifdef CONFIG_DEBUG
                 Serial.print("************* TRASH_CAN *****************");
 #endif
-                nStepForward(2000);
+                nStepForward(5000);
                 motor.changeState(NOTHING);
 
                 // open all the arms
@@ -180,7 +184,7 @@ Loop(void *pvParameters)
 
                 turnRight90();
                 motor.changeState(ONE_STEP);
-                nStepForward(2000);
+                nStepForward(4000);
                 motor.changeState(NOTHING);
 
                 // get the trash can and lift
@@ -195,7 +199,7 @@ Loop(void *pvParameters)
 
                 // get back  
                 motor.changeState(ONE_STEP);
-                nStepBackward(2300);
+                nStepBackward(4300);
                 motor.changeState(NOTHING);
 
                 // close the arms
@@ -208,7 +212,7 @@ Loop(void *pvParameters)
                 //                motor.changeState(NOTHING); 
                 turnLeft90();
 
-                state = TRACK_LINE_1;
+                state = TRACK_LINE;
                 break;
             case PARKING_FIRST:
 #ifdef CONFIG_DEBUG

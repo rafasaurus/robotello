@@ -28,6 +28,12 @@ void setup() {
     pinMode(A0, INPUT);
 }
 
+DataQueue<int> laneCntQueue(3);
+int laneCnt;
+bool isBlackLane = false;
+bool isWhiteLane = false;
+int blackLaneCnt = 0;
+int whiteLaneCnt = 0;
 
 void loop() {
     int l = analogRead(A1);
@@ -60,6 +66,31 @@ void loop() {
     previous_colorSense1_Green = current_colorSense1_Green;
     previous_colorSense1_Blue = current_colorSense1_Blue;
 
+    int laneValue;
+    if (!laneCntQueue.isFull()) {
+        laneCntQueue.enqueue(mean(current_colorSense_Red, current_colorSense_Blue, current_colorSense_Green));
+    }
+    else {
+        laneValue = laneCntQueue.dequeue();
+        laneCntQueue.enqueue(mean(current_colorSense_Red, current_colorSense_Blue, current_colorSense_Green));
+    }
+
+    if (laneValue > 500 && !isBlackLane) {
+        isBlackLane = true; 
+        blackLaneCnt++;
+    } 
+
+    if (laneValue < 500) {
+        isBlackLane = false; 
+    }
+
+    if (laneValue < 500 && !isWhiteLane) {
+        isWhiteLane = true; 
+        whiteLaneCnt++;
+    } 
+    if (laneValue > 500) {
+        isWhiteLane = false; 
+    }
     sensors.push(
             current_lineTracker_LL,
             current_lineTracker_L,
@@ -68,9 +99,9 @@ void loop() {
             current_colorSense_Green,
             current_colorSense_Blue,
             current_colorSense_Red,
-            mean(current_colorSense1_Red, current_colorSense1_Blue, current_colorSense1_Green));
+            blackLaneCnt);
     /*  sensors.log(); */
-    sensors.sendPayload();
+    sensors.sendPayload(blackLaneCnt);
     // * Don't forget to add delay
     // * cuz it won't send the payload correctly
     delay(10);

@@ -12,7 +12,8 @@
 #define COLORSENSE_GREEN_id 5
 #define COLORSENSE_BLUE_id 6
 
-#define COLORSENSE1_MEAN 7
+#define COLORSENSE1_MEAN_id 7
+#define LANE_CNT_id 8
 
 class __Sensors__ {
     class Sensor {
@@ -32,13 +33,8 @@ class __Sensors__ {
                 queue.nextValue(queueList);
             }
             int getMean() {
-                double mean = 0;
-                for (int i = 0; i < QUEUE_SIZE; i++) {
-                    mean += queueList[i];
-                }
-                return mean/QUEUE_SIZE;
+                return queue.getMean();
             }
-
     };
     private:
     Sensor cR_;
@@ -69,7 +65,7 @@ class __Sensors__ {
         cG_.push_(greenColor);
         cS1_mean_.push_(colorSense1_mean);
     }
-    void sendPayload() {
+    void sendPayload(int laneCnt) {
         // lineTrackers payload
         send(L_.getMean(), L_id);
         send(LL_.getMean(), LL_id);
@@ -80,7 +76,8 @@ class __Sensors__ {
         send(cG_.getMean(), COLORSENSE_GREEN_id);
         send(cB_.getMean(), COLORSENSE_BLUE_id);
 
-        send(cS1_mean_.getMean(), COLORSENSE1_MEAN);
+        send(cS1_mean_.getMean(), COLORSENSE1_MEAN_id);
+        send(laneCnt, LANE_CNT_id);
         // Debug
         Serial.println();
     }

@@ -11,6 +11,7 @@
 #define COLORSENSE_GREEN 5
 #define COLORSENSE_BLUE 6
 #define COLORSENSE1_MEAN 7
+#define LANE_CNT 8
 #define MAX_INPUT 32
 
 class __Serial__ {
@@ -24,6 +25,7 @@ class __Serial__ {
         int colorSenseGreen_;
         int colorSenseBlue_;
         int colorSense1Mean_;
+        int laneCnt_;
     public:
         String getMessage() {
             if (Serial.available()) {
@@ -56,7 +58,9 @@ class __Serial__ {
         int colorSense1GetMean() {
             return this->colorSense1Mean_;
         }
-
+        int getLaneCnt() {
+            return this->laneCnt_;
+        }
         void processIncomingByte (const byte inByte)
         {
             static char input_line [MAX_INPUT];
@@ -117,6 +121,9 @@ class __Serial__ {
                             break;
                         case COLORSENSE1_MEAN:
                             this->colorSense1Mean_ = position;
+                            break;
+                        case LANE_CNT:
+                            this->laneCnt_ = position;
                             break;
                     }
                 }
