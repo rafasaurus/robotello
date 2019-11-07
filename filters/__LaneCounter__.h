@@ -7,9 +7,14 @@
 #define L_id 1
 #define RR_id 2
 #define LL_id 3
+
 #define COLORSENSE_RED_id 4
 #define COLORSENSE_GREEN_id 5
 #define COLORSENSE_BLUE_id 6
+
+#define COLORSENSE1_RED_id 7
+#define COLORSENSE1_GREEN_id 8
+#define COLORSENSE1_BLUE_id 9
 
 class __LaneCounter__ {
     class Sensor {
@@ -44,6 +49,9 @@ class __LaneCounter__ {
     Sensor cR_;
     Sensor cG_;
     Sensor cB_;
+    Sensor cR1_;
+    Sensor cG1_;
+    Sensor cB1_;
     Sensor LL_;
     Sensor L_;
     Sensor R_;
@@ -55,6 +63,9 @@ class __LaneCounter__ {
     int* cR_arr;
     int* cB_arr;
     int* cG_arr;
+    int* cR1_arr;
+    int* cB1_arr;
+    int* cG1_arr;
     public:
 
     __LaneCounter__() {};
@@ -64,7 +75,10 @@ class __LaneCounter__ {
             int rr,
             int redColor,
             int greenColor,
-            int blueColor) {
+            int blueColor,
+            int redColor1,
+            int greenColor1,
+            int blueColor1) {
         LL_.push_(ll);
         L_.push_(l); 
         R_.push_(r);
@@ -72,6 +86,9 @@ class __LaneCounter__ {
         cR_.push_(redColor);
         cB_.push_(blueColor);
         cG_.push_(greenColor);
+        cR1_.push_(redColor1);
+        cB1_.push_(blueColor1);
+        cG1_.push_(greenColor1);
     }
     void sendPayload() {
         // lineTrackers payload
@@ -83,6 +100,10 @@ class __LaneCounter__ {
         send(cR_.getMean(), COLORSENSE_RED_id);
         send(cG_.getMean(), COLORSENSE_GREEN_id);
         send(cB_.getMean(), COLORSENSE_BLUE_id);
+
+        send(cR1_.getMean(), COLORSENSE1_RED_id);
+        send(cG1_.getMean(), COLORSENSE1_GREEN_id);
+        send(cB1_.getMean(), COLORSENSE1_BLUE_id);
         // Debug
         // Serial.println();
     }

@@ -53,6 +53,17 @@
 
 #define CB_MIN 5
 #define CB_MAX 50
+
+// Define colorSensor1 margins
+#define CR1_MIN 5
+#define CR1_MAX 50
+
+#define CG1_MIN 5
+#define CG1_MAX 50
+
+#define CB1_MIN 5
+#define CB1_MAX 50
+
 float alpha = 0.5;
 void Loop(void *pvParameters);
 __Servo__ *arm;
@@ -98,13 +109,16 @@ int lineTrackerLeftLeft = 0;
 int colorSenseRed = 0;
 int colorSenseGreen = 0;
 int colorSenseBlue = 0;
+int colorSense1Red = 0;
+int colorSense1Green = 0;
+int colorSense1Blue = 0;
 
 void
 Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = TRACK_LINE;
+    int state = DEBUG;
     // Filter parameters
     while(1) {
         // State-Machine
@@ -311,12 +325,20 @@ debugLineColors() {
     Serial.print(lineTrackerLeft);
     Serial.print(" ");
     Serial.print(lineTrackerLeftLeft);
+
     Serial.print(" ");
     Serial.print(colorSenseRed);
     Serial.print(" ");
     Serial.print(colorSenseGreen);
     Serial.print(" ");
-    Serial.println(colorSenseBlue);
+    Serial.print(colorSenseBlue);
+
+    Serial.print(" ");
+    Serial.print(colorSense1Red);
+    Serial.print(" ");
+    Serial.print(colorSense1Green);
+    Serial.print(" ");
+    Serial.println(colorSense1Blue);
 }
 
 void
@@ -345,13 +367,13 @@ inRange (int value, int min, int max) {
 inline void
 updateSensors() {
     // get the payload from filters/__LaneCounter__.h
-    /* if (same(serial.get_R_sensor(), */
-    /*             serial.get_RR_sensor(), */
-    /*             serial.get_L_sensor(), */
-    /*             serial.get_LL_sensor(), */
-    /*             serial.colorSenseGetRedColor(), */
-    /*             serial.colorSenseGetGreenColor(), */
-    /*             serial.colorSenseGetBlueColor())) { */
+    if (same(serial.get_R_sensor(),
+                serial.get_RR_sensor(),
+                serial.get_L_sensor(),
+                serial.get_LL_sensor(),
+                serial.colorSenseGetRedColor(),
+                serial.colorSenseGetGreenColor(),
+                serial.colorSenseGetBlueColor())) {
         lineTrackerRight = serial.get_R_sensor();
         lineTrackerRightRight = serial.get_RR_sensor();;
         lineTrackerLeft = serial.get_L_sensor();
@@ -360,7 +382,11 @@ updateSensors() {
         colorSenseRed = serial.colorSenseGetRedColor();
         colorSenseGreen = serial.colorSenseGetGreenColor();
         colorSenseBlue = serial.colorSenseGetBlueColor();
-    /* } */
+
+        colorSense1Red = serial.colorSense1GetRedColor();
+        colorSense1Green = serial.colorSense1GetGreenColor();
+        colorSense1Blue = serial.colorSense1GetBlueColor();
+    }
 }
 
 inline bool

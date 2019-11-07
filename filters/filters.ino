@@ -7,6 +7,10 @@ int previous_colorSense_Red = 0;
 int previous_colorSense_Green = 0;
 int previous_colorSense_Blue = 0;
 
+int previous_colorSense1_Red = 0;
+int previous_colorSense1_Green = 0;
+int previous_colorSense1_Blue = 0;
+
 double previous_lineTracker_L = 0;
 double previous_lineTracker_LL = 0;
 double previous_lineTracker_R = 0;
@@ -17,7 +21,7 @@ double lineAlpha = 0.7;
 
 // Pins are defined in __ColorSense__.h
 __ColorSense__ colorSense(S0, S1, S2, S3, COLORSENSE_OUT);
-/* __ColorSense__ colorSense(S00, S11, S22, S33, COLORSENSE_OUT1); */
+__ColorSense__ colorSense1(S00, S11, S22, S33, COLORSENSE_OUT1);
 __LaneCounter__ laneCounter;
 void setup() {
     Serial.begin(115200);
@@ -35,6 +39,10 @@ void loop() {
     double current_colorSense_Green = colorAlpha * colorSense.getGreenColor() + (1-colorAlpha) * previous_colorSense_Green;
     double current_colorSense_Blue = colorAlpha * colorSense.getBlueColor() + (1-colorAlpha) * previous_colorSense_Blue;
 
+    double current_colorSense1_Red = colorAlpha * colorSense1.getRedColor() + (1-colorAlpha) * previous_colorSense1_Red;
+    double current_colorSense1_Green = colorAlpha * colorSense1.getGreenColor() + (1-colorAlpha) * previous_colorSense1_Green;
+    double current_colorSense1_Blue = colorAlpha * colorSense1.getBlueColor() + (1-colorAlpha) * previous_colorSense1_Blue;
+
     double current_lineTracker_LL = (lineAlpha * ll) + (1-lineAlpha) * previous_lineTracker_LL;
     double current_lineTracker_L = (lineAlpha * l) + (1-lineAlpha) * previous_lineTracker_L;
     double current_lineTracker_R = (lineAlpha * r) + (1-lineAlpha) * previous_lineTracker_R;
@@ -47,6 +55,11 @@ void loop() {
     previous_colorSense_Red = current_colorSense_Red;
     previous_colorSense_Green = current_colorSense_Green;
     previous_colorSense_Blue = current_colorSense_Blue;
+
+    previous_colorSense1_Red = current_colorSense1_Red;
+    previous_colorSense1_Green = current_colorSense1_Green;
+    previous_colorSense1_Blue = current_colorSense1_Blue;
+
     laneCounter.push(
             current_lineTracker_LL,
             current_lineTracker_L,
@@ -54,10 +67,21 @@ void loop() {
             current_lineTracker_RR,
             current_colorSense_Green,
             current_colorSense_Blue,
-            current_colorSense_Red);
+            current_colorSense_Red,
+            current_colorSense1_Green,
+            current_colorSense1_Blue,
+            current_colorSense1_Red);
     /* laneCounter.log(); */
     laneCounter.sendPayload();
     // * Don't forget to add delay
     // * cuz it won't send the payload correctly
-    delay(10);
+    delay(20);
+}
+// քառակուսային միջին
+int squaredMean(int a, int b, int c) {
+    return sqrt(sqr(a)+sqr(b)+sqr(c));
+}
+inline int
+sqr(int number) {
+    return number*number;
 }

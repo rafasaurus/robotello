@@ -10,6 +10,9 @@
 #define COLORSENSE_RED 4
 #define COLORSENSE_GREEN 5
 #define COLORSENSE_BLUE 6
+#define COLORSENSE1_RED 7
+#define COLORSENSE1_GREEN 8
+#define COLORSENSE1_BLUE 9
 #define MAX_INPUT 32
 
 class __Serial__ {
@@ -22,6 +25,9 @@ class __Serial__ {
         int colorSenseRed_;
         int colorSenseGreen_;
         int colorSenseBlue_;
+        int colorSense1Red_;
+        int colorSense1Green_;
+        int colorSense1Blue_;
     public:
         String getMessage() {
             if (Serial.available()) {
@@ -29,6 +35,7 @@ class __Serial__ {
                 return(this->str);
             }
         }
+
         int get_L_sensor() {
             return this->L_;
         }
@@ -50,6 +57,16 @@ class __Serial__ {
         int colorSenseGetBlueColor() {
             return this->colorSenseBlue_;
         }
+        int colorSense1GetRedColor() {
+            return this->colorSense1Red_;
+        }
+        int colorSense1GetGreenColor() {
+            return this->colorSense1Green_;
+        }
+        int colorSense1GetBlueColor() {
+            return this->colorSense1Blue_;
+        }
+
         void processIncomingByte (const byte inByte)
         {
             static char input_line [MAX_INPUT];
@@ -101,6 +118,12 @@ class __Serial__ {
                             this->colorSenseGreen_ = position;
                         case COLORSENSE_BLUE:
                             this->colorSenseBlue_ = position;
+                        case COLORSENSE1_RED:
+                            this->colorSense1Red_ = position;
+                        case COLORSENSE1_GREEN:
+                            this->colorSense1Green_ = position;
+                        case COLORSENSE1_BLUE:
+                            this->colorSense1Blue_ = position;
                     }
                 }
                 // Find the next sensorData in input string
