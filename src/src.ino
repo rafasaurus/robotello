@@ -18,11 +18,13 @@
 #define ERROR 0
 #define TRACK_LINE 1
 #define TRACK_LINE_1 5
-#define ROTATE_RIGHT_90 2
-#define ROTATE_LEFT_90 3
 #define TRASH_CAN 4
 #define PARKING_FIRST 7
 #define TURN_RIGHT1 8
+
+// maps
+#define MAP1 100
+#define SUBMAP1 1000
 
 #define LED_BUILTIN 13
 #define rightSensorPin A1 // RightSesnor
@@ -32,6 +34,7 @@
 #define MOTOR_SPD 130
 
 #define FIRE_PIN 6
+#define BUZZER_PIN 9
 bool fireSafety = true;
 // Define lineTracker sensor margins
 #define RR_MIN 10
@@ -105,6 +108,7 @@ setup() {
     Serial3.begin(115200);
     ESC.attach(FIRE_PIN); 
     ESC.writeMicroseconds(1000);
+    pinMode(BUZZER_PIN, OUTPUT);
 }
 
 int lineTrackerRight = 0;
@@ -121,129 +125,92 @@ Loop(void *pvParameters)
 {
     (void) pvParameters;
     motor.changeDirForward();
-    int state = TRACK_LINE;
-    // Filter parameters
     ESC.writeMicroseconds(1000);
-    /* vTaskDelay(4000/portTICK_PERIOD_MS); */
+
+    int map_state = MAP1;
     while(1) {
         updateSerial();
         updateSensors();
         vTaskDelay(50/portTICK_PERIOD_MS);
-        // State-Machine
-        switch (state) {
-#ifdef CONFIG_DEBUG
-            case DEBUG:
-                Serial.print("************* DEBUG *****************");
-                motor.changeState(NOTHING);
-                debugLineColors();
-                break;
-#endif
-            case TRACK_LINE:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* TRACK_LINE *****************");
-                debugLineColors();
-#endif
-                motor.changeDirForward();
-                trackLine();
-
-                if (serial.getLaneCnt() > 1 && listen) {
-                    state = TRASH_CAN;
-                    listen = false;
+        switch (map_state) {
+            case MAP1:
+                Serial.print("************* MAP1 *****************");
+                //  parameters for SUBMAP1
+                int subMap_state = SUBMAP1;
+                bool trashCanDo = true;
+                int current_laneCnt = serial.getLaneCnt();
+                // -----------------------
+                buzzerPlay(1, 50);
+                while(1) {
+                    updateSerial();
+                    updateSensors();
+                    vTaskDelay(50/portTICK_PERIOD_MS);
+                    switch (subMap_state) {
+                        case SUBMAP1:
+                            Serial.print("************* SUBMAP1 *****************");
+                            // check 2x laneCnt -> trashCan
+                            // 2x turnRight
+                            // trackLine() until some condition
+                            motor.changeDirForward();
+                            trackLine();
+                            if (serial.getLaneCnt() - current_laneCnt > 1 && trashCanDo) {
+                                trashCanDo = false; 
+                                trashCan();
+                            }
+                            if (!trashCanDo) {
+                                if (checkForTurnRight() == true) {
+                                    nStepForward(3000);
+                                    turnRight90();
+                                    nStepForward(2000);
+                                }
+                            }
+                    }
                 }
-                if (inRange(lineTrackerRightRight, RR_MIN, RR_MAX) &&
-                        inRange(lineTrackerRight, R_MIN, RR_MAX) &&
-                        inRange(lineTrackerLeft, L_MIN, L_MAX) &&
-                        inRange(colorSenseRed, CR_MIN, CR_MAX) &&
-                        inRange(colorSenseGreen, CG_MIN, CG_MAX) &&
-                        inRange(colorSenseBlue, CB_MIN, CB_MAX)) {
-                    state = TURN_RIGHT1;
-                    motor.changeState(NOTHING);
-                    // For debugging
-                    /* vTaskDelay(1000/portTICK_PERIOD_MS);; */
-                    break;
-                }
-                break;
-            case ERROR:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* ERROR *****************");
-#endif
-                updateSerial();
-                state = TRACK_LINE;
-                break;
-            case TRASH_CAN:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* TRASH_CAN *****************");
-#endif
-                nStepForward(5000);
-                motor.changeState(NOTHING);
-
-                // open all the arms
-                armOne->open();
-                armTwo->close();//reversed servo
-                arm->open();
-
-                turnRight90();
-                motor.changeState(ONE_STEP);
-                nStepForward(4000);
-                motor.changeState(NOTHING);
-
-                // get the trash can and lift
-                arm->close();                
-                armOne->liftTrashCan(50);
-                armTwo->liftTrashCan(120);
-
-                // put trash can back
-                armOne->open();
-                armTwo->close();
-                arm->open();
-
-                // get back  
-                motor.changeState(ONE_STEP);
-                nStepBackward(4300);
-                motor.changeState(NOTHING);
-
-                // close the arms
-                armOne->close();
-                armTwo->open();
-
-                // get back again
-                //                motor.changeState(ONE_STEP);
-                //                nStepBackward(300);
-                //                motor.changeState(NOTHING); 
-                turnLeft90();
-
-                state = TRACK_LINE;
-                break;
-            case PARKING_FIRST:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* PARKING_FIRST *****************");
-#endif
-                rightParking();
-                state = ERROR;
-                break;
-
-            case TURN_RIGHT1:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* TURN_RIGHT1 *****************");
-#endif
-                debugLineColors();
-                nStepForward(3000);
-                turnRight90();
-                nStepForward(2000);
-                motor.changeState(NOTHING);
-                state = TRACK_LINE;
-                break;
-            case TRACK_LINE_1:
-#ifdef CONFIG_DEBUG
-                Serial.print("************* TRACK_LINE_1 *****************");
-#endif
-                motor.changeDirForward();
-                trackLine();
-                break;
         }
     }
 }
 
+inline void
+trashCan() {
+    Serial.print("************* TRASH_CAN *****************");
+    nStepForward(5000);
+    motor.changeState(NOTHING);
+
+    // open all the arms
+    armOne->open();
+    armTwo->close();//reversed servo
+    arm->open();
+
+    turnRight90();
+    motor.changeState(ONE_STEP);
+    nStepForward(4000);
+    motor.changeState(NOTHING);
+
+    // get the trash can and lift
+    arm->close();
+    armOne->liftTrashCan(50);
+    armTwo->liftTrashCan(120);
+
+    // put trash can back
+    armOne->open();
+    armTwo->close();
+    arm->open();
+
+    // get back
+    motor.changeState(ONE_STEP);
+    nStepBackward(4300);
+    motor.changeState(NOTHING);
+
+    // close the arms
+    armOne->close();
+    armTwo->open();
+
+    // get back again
+    //                motor.changeState(ONE_STEP);
+    //                nStepBackward(300);
+    //                motor.changeState(NOTHING);
+    turnLeft90();
+}
 inline
 void
 nStepForward(int steps) {
@@ -451,6 +418,27 @@ estinguishFire() { // init
     vTaskDelay(2000/portTICK_PERIOD_MS);
     ESC.writeMicroseconds(1000);
     fireSafety = true;
+}
+inline void
+buzzerPlay(int n, int delay) {
+    for (int i = 0; i < n; i++) {
+        digitalWrite(BUZZER_PIN, 1);
+        vTaskDelay(delay/portTICK_PERIOD_MS);
+        digitalWrite(BUZZER_PIN, 0);
+        vTaskDelay(delay/portTICK_PERIOD_MS);
+    }
+}
+inline bool
+checkForTurnRight() {
+    if (inRange(lineTrackerRightRight, RR_MIN, RR_MAX) &&
+            inRange(lineTrackerRight, R_MIN, RR_MAX) &&
+            inRange(lineTrackerLeft, L_MIN, L_MAX) &&
+            inRange(colorSenseRed, CR_MIN, CR_MAX) &&
+            inRange(colorSenseGreen, CG_MIN, CG_MAX) &&
+            inRange(colorSenseBlue, CB_MIN, CB_MAX))
+        return true;
+    else
+        return false;
 }
 void
 loop() {

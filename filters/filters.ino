@@ -104,7 +104,7 @@ void loop() {
     sensors.sendPayload(blackLaneCnt);
     // * Don't forget to add delay
     // * cuz it won't send the payload correctly
-    delay(10);
+    delay(13);
 }
 // քառակուսային միջին
 int mean(int a, int b, int c) {

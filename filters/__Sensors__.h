@@ -79,6 +79,6 @@ class __Sensors__ {
         send(cS1_mean_.getMean(), COLORSENSE1_MEAN_id);
         send(laneCnt, LANE_CNT_id);
         // Debug
-        Serial.println();
+        // Serial.println();
     }
 };
