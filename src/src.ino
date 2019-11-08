@@ -25,6 +25,8 @@
 // maps
 #define MAP1 100
 #define SUBMAP1 1000
+#define SUBMAP2 1001
+#define SUBMAP3 1002
 
 #define LED_BUILTIN 13
 #define rightSensorPin A1 // RightSesnor
@@ -120,7 +122,7 @@ int colorSenseGreen = 0;
 int colorSenseBlue = 0;
 int colorSense1_mean = 0;
 bool listen = 1;
-void
+    void
 Loop(void *pvParameters)
 {
     (void) pvParameters;
@@ -135,35 +137,119 @@ Loop(void *pvParameters)
         switch (map_state) {
             case MAP1:
                 Serial.print("************* MAP1 *****************");
+                int lastLaneCnt = serial.getLaneCnt();
                 //  parameters for SUBMAP1
                 int subMap_state = SUBMAP1;
                 bool trashCanDo = true;
-                int current_laneCnt = serial.getLaneCnt();
+                bool submap23_switcher = false; // if true submap3; else submap2
+                int turnRightCnt = 0;
+                // -----------------------
+                // parameters for SUBMAP2
+                int turnLeftCnt = 0;
+                bool parkingCanDo = true;
+                bool leftTurnPass = true;
                 // -----------------------
                 buzzerPlay(1, 50);
                 while(1) {
                     updateSerial();
                     updateSensors();
                     vTaskDelay(50/portTICK_PERIOD_MS);
+                    debugLineColors();
                     switch (subMap_state) {
                         case SUBMAP1:
-                            Serial.print("************* SUBMAP1 *****************");
+                            /* Serial.print("************* SUBMAP1 *****************"); */
                             // check 2x laneCnt -> trashCan
                             // 2x turnRight
                             // trackLine() until some condition
                             motor.changeDirForward();
                             trackLine();
-                            if (serial.getLaneCnt() - current_laneCnt > 1 && trashCanDo) {
+                            // ** if you want to disable trashCan()
+                            // trashCanDo = false;
+                            if (serial.getLaneCnt() - lastLaneCnt > 1 && trashCanDo) {
                                 trashCanDo = false; 
                                 trashCan();
                             }
+                            // TODO
                             if (!trashCanDo) {
                                 if (checkForTurnRight() == true) {
+                                    motor.changeState(NOTHING);
+                                    vTaskDelay(500/portTICK_PERIOD_MS);
+                                    turnRightCnt++;
                                     nStepForward(3000);
                                     turnRight90();
                                     nStepForward(2000);
                                 }
                             }
+#ifdef SUBMAP3_
+                            if (checkForTurnLeft() == true && turnRightCnt == 2) {
+                                motor.changeState(NOTHING);
+                                vTaskDelay(500/portTICK_PERIOD_MS);
+                                nStepForward(3000);
+                                turnLeft90(); 
+                                nStepForward(2000);
+                                subMap_state = SUBMAP3;
+                                break;
+                            }
+#else
+                            if (checkForTurnLeft() == true && turnRightCnt == 2) {
+                                motor.changeState(NOTHING);
+                                vTaskDelay(1000/portTICK_PERIOD_MS);
+                                motor.changeDirRight();
+                                nStepRight(700);
+                                nStepForward(1000);
+                                subMap_state = SUBMAP2;
+                            }
+                            break;
+#endif
+                            break;
+
+                        case SUBMAP2:
+                            // 2x turnLeft check
+                            // after seccond turn parking
+                            trackLine();
+                            if (checkForTurnLeft() == true) {
+                                if (turnLeftCnt == 1) {
+                                    motor.changeState(NOTHING);
+                                    vTaskDelay(500/portTICK_PERIOD_MS);
+
+                                    turnLeftCnt++;
+                                    nStepRight(700);
+                                    nStepForward(700);
+                                } else {
+                                    motor.changeState(NOTHING);
+                                    vTaskDelay(500/portTICK_PERIOD_MS);
+
+                                    turnLeftCnt++;
+                                    nStepForward(3000);
+                                    turnLeft90();
+                                    nStepForward(2000);
+                                }
+                                lastLaneCnt = serial.getLaneCnt();
+                                buzzerPlay(turnLeftCnt, 50);
+                            }
+                            // TODO **
+                            if (serial.getLaneCnt() - lastLaneCnt >= 3) {
+                                lastLaneCnt = serial.getLaneCnt();
+                            }
+                            if (turnLeftCnt >= 3 && serial.getLaneCnt() - lastLaneCnt >= 1) {
+                                Serial.println("------------");
+                                motor.changeState(ONE_STEP);
+                                buzzerPlay(serial.getLaneCnt() - lastLaneCnt, 50);
+                                vTaskDelay(500/portTICK_PERIOD_MS);
+                                /* nStepForward(5500);  */
+                                rightParking(); 
+                                motor.changeState(NOTHING);
+                            }
+                            break;
+                        case SUBMAP3:
+                            if (checkForTurnLeft() == true) {
+                                buzzerPlay(10,20);
+                                nStepForward(3000);
+                                turnLeft90(); 
+                                nStepForward(2000);
+                            }
+                            trackLine();
+                            break;
                     }
                 }
         }
@@ -218,6 +304,18 @@ nStepForward(int steps) {
     // it's just for temporrary bug fix
     updateSerial();
     motor.changeDirForward();
+    motor.changeState(ONE_STEP); 
+    while(!motor.n_step(steps)) {
+        vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
+    }
+}
+inline
+void
+nStepRight(int steps) {
+    // TODO
+    // it's just for temporrary bug fix
+    updateSerial();
+    motor.changeDirRight();
     motor.changeState(ONE_STEP); 
     while(!motor.n_step(steps)) {
         vTaskDelay(1 / portTICK_PERIOD_MS); // wait for one second
@@ -311,10 +409,10 @@ debugLineColors() {
     Serial.println(" ");
 }
 
-void
+inline void
 rightParking(){
     motor.changeState(ONE_STEP);
-    nStepForward(2500);
+    nStepForward(3500);
     motor.changeState(NOTHING);
     motor.changeDirLeft();
     motor.changeState(ONE_STEP); 
@@ -324,6 +422,9 @@ rightParking(){
     motor.changeState(ONE_STEP);
     nStepBackward(9000);
     motor.changeState(NOTHING);
+    vTaskDelay(5000);
+    nStepForward(9000);
+    turnLeft90();
 }
 
 inline bool
@@ -431,8 +532,33 @@ buzzerPlay(int n, int delay) {
 inline bool
 checkForTurnRight() {
     if (inRange(lineTrackerRightRight, RR_MIN, RR_MAX) &&
-            inRange(lineTrackerRight, R_MIN, RR_MAX) &&
+            inRange(lineTrackerRight, R_MIN, R_MAX) &&
             inRange(lineTrackerLeft, L_MIN, L_MAX) &&
+            inRange(colorSenseRed, CR_MIN, CR_MAX) &&
+            inRange(colorSenseGreen, CG_MIN, CG_MAX) &&
+            inRange(colorSenseBlue, CB_MIN, CB_MAX))
+        return true;
+    else
+        return false;
+}
+inline bool
+checkForTurnRightCrossRoad() {
+    if (inRange(lineTrackerLeftLeft, LL_MIN, LL_MAX) &&
+            inRange(lineTrackerLeft, L_MIN, L_MAX) &&
+            inRange(lineTrackerRight, R_MIN, R_MAX) &&
+            inRange(lineTrackerRightRight, RR_MIN, RR_MAX) &&
+            inRange(colorSenseRed, CR_MIN, CR_MAX) &&
+            inRange(colorSenseGreen, CG_MIN, CG_MAX) &&
+            inRange(colorSenseBlue, CB_MIN, CB_MAX))
+        return true;
+    else
+        return false;
+}
+inline bool
+checkForTurnLeft() {
+    if (inRange(lineTrackerLeftLeft, LL_MIN, LL_MAX) &&
+            inRange(lineTrackerLeft, L_MIN, L_MAX) &&
+            inRange(lineTrackerRight, R_MIN, R_MAX) &&
             inRange(colorSenseRed, CR_MIN, CR_MAX) &&
             inRange(colorSenseGreen, CG_MIN, CG_MAX) &&
             inRange(colorSenseBlue, CB_MIN, CB_MAX))
