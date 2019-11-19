@@ -122,7 +122,8 @@ int colorSenseGreen = 0;
 int colorSenseBlue = 0;
 int colorSense1_mean = 0;
 bool listen = 1;
-    void
+
+void
 Loop(void *pvParameters)
 {
     (void) pvParameters;
@@ -157,14 +158,8 @@ Loop(void *pvParameters)
                     debugLineColors();
                     switch (subMap_state) {
                         case SUBMAP1:
-                            /* Serial.print("************* SUBMAP1 *****************"); */
-                            // check 2x laneCnt -> trashCan
-                            // 2x turnRight
-                            // trackLine() until some condition
                             motor.changeDirForward();
                             trackLine();
-                            // ** if you want to disable trashCan()
-                            // trashCanDo = false;
                             if (serial.getLaneCnt() - lastLaneCnt > 1 && trashCanDo) {
                                 trashCanDo = false; 
                                 trashCan();
@@ -204,8 +199,6 @@ Loop(void *pvParameters)
                             break;
 
                         case SUBMAP2:
-                            // 2x turnLeft check
-                            // after seccond turn parking
                             trackLine();
                             if (checkForTurnLeft() == true) {
                                 if (turnLeftCnt == 1) {
@@ -291,17 +284,11 @@ trashCan() {
     armOne->close();
     armTwo->open();
 
-    // get back again
-    //                motor.changeState(ONE_STEP);
-    //                nStepBackward(300);
-    //                motor.changeState(NOTHING);
     turnLeft90();
 }
 inline
 void
 nStepForward(int steps) {
-    // TODO
-    // it's just for temporrary bug fix
     updateSerial();
     motor.changeDirForward();
     motor.changeState(ONE_STEP); 
@@ -312,8 +299,6 @@ nStepForward(int steps) {
 inline
 void
 nStepRight(int steps) {
-    // TODO
-    // it's just for temporrary bug fix
     updateSerial();
     motor.changeDirRight();
     motor.changeState(ONE_STEP); 
@@ -362,15 +347,6 @@ trackLine(){
 
         motor.changeState(ONE_STEP);
     }
-    //     if(lineTrackerLeft.getValue() >= 0 &&
-    //            lineTrackerLeft.getValue() <= 250 &&
-    //            lineTrackerRight.getValue()  <= 250 &&
-    //            lineTrackerRight.getValue() >= 0 ) {
-    //        
-    //        motor.changeState(ONE_STEP);
-    //        Serial.print(1);
-    //    }
-    // if left sensor is white , right sensor is black
     if(lineTrackerLeft >= 0 &&
             lineTrackerLeft <= 250 &&
             lineTrackerRight <= 1060 &&
@@ -396,14 +372,12 @@ debugLineColors() {
     Serial.print(lineTrackerLeft);
     Serial.print(" ");
     Serial.print(lineTrackerLeftLeft);
-
     Serial.print(" ");
     Serial.print(colorSenseRed);
     Serial.print(" ");
     Serial.print(colorSenseGreen);
     Serial.print(" ");
     Serial.print(colorSenseBlue);
-
     Serial.print(" ");
     Serial.print(colorSense1_mean);
     Serial.println(" ");
@@ -437,72 +411,14 @@ inRange (int value, int min, int max) {
 
 inline void
 updateSensors() {
-    // get the payload from filters/__LaneCounter__.h
-    if (same(serial.get_R_sensor(),
-                serial.get_RR_sensor(),
-                serial.get_L_sensor(),
-                serial.get_LL_sensor(),
-                serial.colorSenseGetRedColor(),
-                serial.colorSenseGetGreenColor(),
-                serial.colorSenseGetBlueColor())) {
-        lineTrackerRight = serial.get_R_sensor();
-        lineTrackerRightRight = serial.get_RR_sensor();;
-        lineTrackerLeft = serial.get_L_sensor();
-        lineTrackerLeftLeft = serial.get_LL_sensor();
-
-        colorSenseRed = serial.colorSenseGetRedColor();
-        colorSenseGreen = serial.colorSenseGetGreenColor();
-        colorSenseBlue = serial.colorSenseGetBlueColor();
-
-        colorSense1_mean = serial.colorSense1GetMean();
-    }
-}
-
-inline bool
-same(int a, int b, int c, int d, int e, int f, int g) {
-    int counter = 0;
-    if (a == b)
-        ++counter;
-    if (a == f)
-        ++counter;
-    if (a == g)
-        ++counter;
-    if (b == c)
-        ++counter;
-    if (b == d)
-        ++counter;
-    if (b == e)
-        ++counter;
-    if (c == d)
-        ++counter;
-    if (d == e)
-        ++counter;
-    if (e == a)
-        ++counter;
-    if (e == c)
-        ++counter;
-    if (d == a)
-        ++counter;
-    if (c == e)
-        ++counter;
-    if (c == g)
-        ++counter;
-    if (c == f)
-        ++counter;
-    if (d == f)
-        ++counter;
-    if (d == g)
-        ++counter;
-    if (f == g)
-        ++counter;
-    if (e == g)
-        ++counter;
-    if (e == f)
-        ++counter;
-    if (counter >=3) {
-        return false;
-    }
-    return true;
+    lineTrackerRight = serial.get_R_sensor();
+    lineTrackerRightRight = serial.get_RR_sensor();;
+    lineTrackerLeft = serial.get_L_sensor();
+    lineTrackerLeftLeft = serial.get_LL_sensor();
+    colorSenseRed = serial.colorSenseGetRedColor();
+    colorSenseGreen = serial.colorSenseGetGreenColor();
+    colorSenseBlue = serial.colorSenseGetBlueColor();
+    colorSense1_mean = serial.colorSense1GetMean();
 }
 
 inline void
