@@ -7,5 +7,7 @@
 For Serial test in linux
 *   minicom -b 9600 -o -D /dev/ttyAMA0
 
+### Operation
+![image](https://media.giphy.com/media/kHl39O90m7YqWetWJB/giphy.gif)
 ### Credits
 @EinarArnason [ArduinoQueue](https://github.com/EinarArnason/ArduinoQueue)
